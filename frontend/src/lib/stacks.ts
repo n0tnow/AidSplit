@@ -113,7 +113,7 @@ export const makeDonation = async (
   targetOrg?: string,
   onFinish?: (data: any) => void
 ) => {
-  const functionArgs = [
+  const functionArgs: any[] = [
     uintCV(campaignId),
     uintCV(amount)
   ];
