@@ -16,7 +16,7 @@
     "@types/node": "^16.18.126",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
-    "lucide-react": "^0.263.1",
+    "lucide-react": "^0.460.0",
     "ogl": "^1.0.11",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
@@ -28,7 +28,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "install:legacy": "npm install --legacy-peer-deps",
+    "build:vercel": "npm install --legacy-peer-deps && react-scripts build"
   },
   "eslintConfig": {
     "extends": [
@@ -47,5 +49,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "overrides": {
+    "lucide-react": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
+  },
+  "resolutions": {
+    "lucide-react/react": "$react",
+    "lucide-react/react-dom": "$react-dom"
   }
 }
