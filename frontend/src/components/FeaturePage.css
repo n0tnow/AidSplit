@@ -1,0 +1,137 @@
+/* FeaturePage Component Styles */
+
+.feature-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.feature-page-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.back-btn {
+  padding: 12px 24px;
+  border: 1px solid var(--dark-border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 32px;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  border-color: var(--primary-green);
+  color: var(--primary-green);
+}
+
+.feature-page-header h1 {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.feature-icon-large {
+  font-size: 48px;
+  filter: drop-shadow(0 4px 16px rgba(16, 185, 129, 0.5));
+}
+
+.feature-page-header p {
+  font-size: 18px;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.feature-page-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+
+.feature-info h2,
+.contracts-info h2 {
+  color: var(--text-primary);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+}
+
+.feature-list li {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-bottom: 12px;
+  padding-left: 24px;
+  position: relative;
+}
+
+.feature-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--primary-green);
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.contracts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contract-card {
+  background: var(--dark-card);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--dark-border);
+  transition: all 0.3s ease;
+}
+
+.contract-card:hover {
+  border-color: var(--primary-green);
+  transform: translateX(4px);
+}
+
+.contract-card h3 {
+  color: var(--primary-green);
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.contract-card p {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .feature-page {
+    padding: 20px 16px;
+  }
+  
+  .feature-page-header h1 {
+    font-size: 32px;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .feature-page-content {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}

@@ -1,0 +1,78 @@
+[project]
+name = "aidsplit"
+description = "Enterprise donation and payroll distribution platform"
+version = "1.0.0"
+authors = ["AidSplit Team"]
+telemetry = false
+cache_dir = ".clarinet"
+requirements = []
+
+[contracts.campaign-manager]
+path = "contracts/campaign-manager.clar"
+clarity_version = 2
+epoch = 2.4
+
+[contracts.distribution-engine]
+path = "contracts/distribution-engine.clar"
+clarity_version = 2
+epoch = 2.4
+
+[contracts.hierarchy-calculator]
+path = "contracts/hierarchy-calculator.clar" 
+clarity_version = 2
+epoch = 2.4
+
+[contracts.nft-receipts]
+path = "contracts/nft-receipts.clar"
+clarity_version = 2
+epoch = 2.4
+
+[contracts.access-control]
+path = "contracts/access-control.clar"
+clarity_version = 2
+epoch = 2.4
+
+[contracts.company-auth]
+path = "contracts/company-auth.clar"
+clarity_version = 2
+epoch = 2.4
+
+[contracts.donation-targeting]
+path = "contracts/donation-targeting.clar"
+clarity_version = 2
+epoch = 2.4
+
+[contracts.nft-generator]
+path = "contracts/nft-generator.clar"
+clarity_version = 2
+epoch = 2.4
+
+# Test accounts with proper STX balances
+[[project.accounts]]
+name = "deployer"
+address = "ST1HTBVD3JG9C05J7HBJTHGR0GGW7KXW28M5JS8QE"
+balance = 100000000000000  # 100M STX
+
+[[project.accounts]]
+name = "wallet_1" 
+address = "ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG"
+balance = 100000000000000
+
+[[project.accounts]]
+name = "wallet_2"
+address = "ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC" 
+balance = 100000000000000
+
+[[project.accounts]]
+name = "wallet_3"
+address = "ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP"
+balance = 100000000000000
+
+[[project.accounts]]
+name = "wallet_4"
+address = "ST2REHHS5J3CERCRBEPMGH7921Q6PYKAADT7JP2VB"
+balance = 100000000000000
+
+[repl]
+costs = true
+parser_version = 2
