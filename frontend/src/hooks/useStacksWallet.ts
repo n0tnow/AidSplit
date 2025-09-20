@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { AppConfig, UserSession, showConnect } from '@stacks/connect';
-import { StacksMainnet, StacksTestnet } from '@stacks/network';
+import { getNetwork } from '../lib/stacks';
+import { APP_CONFIG, NETWORK } from '../lib/constants';
 
 // App configuration
 const appConfig = new AppConfig(['store_write', 'publish_data']);
 const userSession = new UserSession({ appConfig });
 
-// Network configuration (use testnet for development)
-const network = process.env.NODE_ENV === 'production' ? new StacksMainnet() : new StacksTestnet();
+// Network configuration
+const network = getNetwork();
 
 export const useStacksWallet = () => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -37,8 +38,8 @@ export const useStacksWallet = () => {
     try {
       const authOptions = {
         appDetails: {
-          name: 'AidSplit',
-          icon: `${window.location.origin}/logo192.png`,
+          name: APP_CONFIG.name,
+          icon: `${window.location.origin}${APP_CONFIG.icon}`,
         },
         redirectTo: '/',
         onFinish: (authData: any) => {
@@ -85,17 +86,11 @@ export const useStacksWallet = () => {
   };
 
   const getExplorerLink = (txHash: string) => {
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://explorer.stacks.co/txid' 
-      : 'https://explorer.stacks.co/txid?chain=testnet';
-    return `${baseUrl}/${txHash}`;
+    return `${NETWORK === 'mainnet' ? 'https://explorer.stacks.co' : 'https://explorer.stacks.co'}/txid/${txHash}${NETWORK !== 'mainnet' ? '?chain=' + NETWORK : ''}`;
   };
 
   const getAddressExplorerLink = (address: string) => {
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://explorer.stacks.co/address' 
-      : 'https://explorer.stacks.co/address?chain=testnet';
-    return `${baseUrl}/${address}`;
+    return `${NETWORK === 'mainnet' ? 'https://explorer.stacks.co' : 'https://explorer.stacks.co'}/address/${address}${NETWORK !== 'mainnet' ? '?chain=' + NETWORK : ''}`;
   };
 
   return {
