@@ -86,11 +86,15 @@ export const useStacksWallet = () => {
   };
 
   const getExplorerLink = (txHash: string) => {
-    return `${NETWORK === 'mainnet' ? 'https://explorer.stacks.co' : 'https://explorer.stacks.co'}/txid/${txHash}${NETWORK !== 'mainnet' ? '?chain=' + NETWORK : ''}`;
+    const baseUrl = 'https://explorer.stacks.co';
+    const chainParam = NETWORK === 'testnet' ? '?chain=testnet' : '';
+    return `${baseUrl}/txid/${txHash}${chainParam}`;
   };
 
   const getAddressExplorerLink = (address: string) => {
-    return `${NETWORK === 'mainnet' ? 'https://explorer.stacks.co' : 'https://explorer.stacks.co'}/address/${address}${NETWORK !== 'mainnet' ? '?chain=' + NETWORK : ''}`;
+    const baseUrl = 'https://explorer.stacks.co';
+    const chainParam = NETWORK === 'testnet' ? '?chain=testnet' : '';
+    return `${baseUrl}/address/${address}${chainParam}`;
   };
 
   return {

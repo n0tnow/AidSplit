@@ -1,5 +1,5 @@
 // Stacks Network Configuration
-export const NETWORK = 'testnet'; // 'mainnet' | 'testnet' | 'devnet'
+export const NETWORK = process.env.REACT_APP_NETWORK as 'mainnet' | 'testnet' | 'devnet' || 'testnet';
 
 // Contract Addresses (will be updated after deployment)
 export const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS || 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM';
