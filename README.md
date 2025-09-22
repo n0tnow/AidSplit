@@ -1,8 +1,9 @@
 # 🤝 AidSplit - Blockchain-Based Disaster Relief Platform
 
 <p align="center">
-  <img width="488" height="450" alt="ChatGPT Image 22 Eyl 2025 12_48_30-1" src="https://github.com/user-attachments/assets/040e0fde-9340-4748-acd8-287fd9c72402" />
+  
 
+<img width="477" height="450" alt="ChatGPT Image 22 Eyl 2025 12_48_30-1" src="https://github.com/user-attachments/assets/386b4ccf-a96f-4abe-844a-e195842f7f53" />
 
 </p>
 
