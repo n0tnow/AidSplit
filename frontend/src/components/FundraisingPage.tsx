@@ -1,214 +1,254 @@
 import React, { useState, useEffect } from 'react';
-import { useConnect } from '@stacks/connect-react';
-import { StacksMainnet, StacksTestnet } from '@stacks/network';
-import { openContractCall } from '@stacks/connect';
-import { getContributeStxTx, getContributeSbtcTx } from '../lib/fundraisingUtils';
-import { uintCV } from '@stacks/transactions';
+import { ArrowLeft, CircleDollarSign, Users, Target, Calendar, TrendingUp, Wallet, AlertCircle, CheckCircle } from 'lucide-react';
+import { useWallet } from '../contexts/WalletContext';
+import { useCampaignInfo } from '../hooks/campaignQueries';
+import { ustxToStx, satsToSbtc, formatCurrency } from '../lib/currencyUtils';
+import DonationModal from './DonationModal';
 import './FundraisingPage.css';
 
-const FundraisingPage: React.FC = () => {
-  const { authenticate, signOut, authOptions } = useConnect();
-  const [userAddress, setUserAddress] = useState<string>('');
-  const [userRole, setUserRole] = useState<string>('user');
+interface FundraisingPageProps {
+  onBack: () => void;
+}
 
-  const [donationAmount, setDonationAmount] = useState<string>('');
-  const [donationType, setDonationType] = useState<'stx' | 'sbtc'>('stx');
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<string>('');
+const FundraisingPage: React.FC<FundraisingPageProps> = ({ onBack }) => {
+  const { userAddress, isConnected, userRole } = useWallet();
+  const { data: campaignInfo, isLoading, error } = useCampaignInfo(15000);
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
 
-  // Campaign info state
-  const [campaignInfo, setCampaignInfo] = useState({
-    goal: 1000000, // 1M microSTX = 1000 STX
-    totalRaised: 0,
-    donorCount: 0,
-    isActive: true,
-    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
-  });
+  // Calculate progress percentage
+  const progressPercentage = campaignInfo 
+    ? Math.min((campaignInfo.totalStx + campaignInfo.totalSbtc) / campaignInfo.goal * 100, 100)
+    : 0;
 
-  useEffect(() => {
-    // Check if user is already connected
-    if (authOptions.userSession?.isUserSignedIn()) {
-      const userData = authOptions.userSession.loadUserData();
-      setUserAddress(userData.profile.stxAddress.testnet || userData.profile.stxAddress.mainnet);
-    }
-  }, [authOptions.userSession]);
+  // Format amounts for display
+  const totalStxDisplay = campaignInfo ? ustxToStx(campaignInfo.totalStx) : 0;
+  const totalSbtcDisplay = campaignInfo ? satsToSbtc(campaignInfo.totalSbtc) : 0;
 
-  const connectWallet = () => {
-    authenticate();
-  };
-
-  const disconnectWallet = () => {
-    signOut();
-    setUserAddress('');
-  };
-
-  const handleDonation = async () => {
-    if (!userAddress) {
-      setMessage('Please connect your wallet first');
-      return;
-    }
-
-    if (!donationAmount || parseFloat(donationAmount) <= 0) {
-      setMessage('Please enter a valid donation amount');
-      return;
-    }
-
-    setIsLoading(true);
-    setMessage('');
-
-    try {
-      const amountInMicrounits = donationType === 'stx'
-        ? Math.floor(parseFloat(donationAmount) * 1000000) // Convert STX to microSTX
-        : Math.floor(parseFloat(donationAmount) * 100000000); // Convert BTC to sats
-
-      const contractCall = donationType === 'stx'
-        ? getContributeStxTx('testnet', { address: userAddress, amount: amountInMicrounits })
-        : getContributeSbtcTx('testnet', { address: userAddress, amount: amountInMicrounits });
-
-      await openContractCall({
-        ...contractCall,
-        onFinish: (data: any) => {
-          console.log('Transaction submitted:', data);
-          setMessage(`Donation successful! Transaction ID: ${data.txId}`);
-          setDonationAmount('');
-          // Update campaign info
-          setCampaignInfo(prev => ({
-            ...prev,
-            totalRaised: prev.totalRaised + amountInMicrounits,
-            donorCount: prev.donorCount + 1
-          }));
-        },
-        onCancel: () => {
-          setMessage('Transaction cancelled');
-        },
-      });
-    } catch (error) {
-      console.error('Donation error:', error);
-      setMessage('Donation failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const progressPercentage = (campaignInfo.totalRaised / campaignInfo.goal) * 100;
+  // Calculate days remaining
+  const daysRemaining = campaignInfo && !campaignInfo.isExpired
+    ? Math.max(0, Math.ceil((campaignInfo.end - Date.now() / 1000) / (24 * 60 * 60)))
+    : 0;
 
   return (
     <div className="fundraising-page">
-      <div className="page-header">
-        <h1>🎯 Fundraising Campaign</h1>
-        <p>Support our mission with your crypto donations</p>
+      <div className="fundraising-header">
+        <button onClick={onBack} className="back-button">
+          <ArrowLeft size={20} />
+          Back to Home
+        </button>
+        <h1>Fundraising Campaign</h1>
       </div>
 
-      {/* Wallet Connection */}
-      <div className="wallet-section">
-        {!userAddress ? (
-          <button onClick={connectWallet} className="connect-wallet-btn">
-            Connect Stacks Wallet
-          </button>
-        ) : (
-          <div className="wallet-info">
-            <div className="wallet-address">{userAddress}</div>
-            <button onClick={disconnectWallet} className="disconnect-btn">
-              Disconnect
-            </button>
+      <div className="fundraising-content">
+        {/* Campaign Overview Card */}
+        <div className="campaign-overview-card">
+          <div className="campaign-header">
+            <div className="campaign-title">
+              <CircleDollarSign size={32} className="campaign-icon" />
+              <div>
+                <h2>Emergency Relief Fund</h2>
+                <p>Supporting communities in need through cryptocurrency donations</p>
+              </div>
+            </div>
+            
+            {campaignInfo?.isCancelled && (
+              <div className="campaign-status cancelled">
+                <AlertCircle size={16} />
+                Campaign Cancelled
+              </div>
+            )}
+            
+            {campaignInfo?.isExpired && !campaignInfo.isCancelled && (
+              <div className="campaign-status expired">
+                <Calendar size={16} />
+                Campaign Ended
+              </div>
+            )}
+            
+            {!campaignInfo?.isExpired && !campaignInfo?.isCancelled && (
+              <div className="campaign-status active">
+                <CheckCircle size={16} />
+                Active Campaign
+              </div>
+            )}
+          </div>
+
+          {/* Progress Section */}
+          <div className="progress-section">
+            <div className="progress-stats">
+              <div className="stat">
+                <span className="stat-label">Raised</span>
+                <span className="stat-value">
+                  {formatCurrency(totalStxDisplay, 'STX')} + {formatCurrency(totalSbtcDisplay, 'sBTC')}
+                </span>
+              </div>
+              <div className="stat">
+                <span className="stat-label">Goal</span>
+                <span className="stat-value">
+                  {campaignInfo ? `$${campaignInfo.goal.toLocaleString()}` : 'Loading...'}
+                </span>
+              </div>
+              <div className="stat">
+                <span className="stat-label">Donors</span>
+                <span className="stat-value">
+                  {campaignInfo?.donationCount || 0}
+                </span>
+              </div>
+            </div>
+
+            <div className="progress-bar-container">
+              <div className="progress-bar">
+                <div 
+                  className="progress-fill" 
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+              <span className="progress-percentage">{progressPercentage.toFixed(1)}%</span>
+            </div>
+
+            {!campaignInfo?.isExpired && !campaignInfo?.isCancelled && (
+              <div className="time-remaining">
+                <Calendar size={16} />
+                {daysRemaining > 0 ? `${daysRemaining} days remaining` : 'Campaign ending soon'}
+              </div>
+            )}
+          </div>
+
+          {/* Donation Button */}
+          <div className="donation-section">
+            {!isConnected ? (
+              <div className="connect-wallet-prompt">
+                <Wallet size={24} />
+                <p>Connect your wallet to make a donation</p>
+              </div>
+            ) : campaignInfo?.isExpired ? (
+              <div className="campaign-ended-message">
+                <AlertCircle size={20} />
+                <span>This campaign has ended</span>
+              </div>
+            ) : campaignInfo?.isCancelled ? (
+              <div className="campaign-cancelled-message">
+                <AlertCircle size={20} />
+                <span>This campaign has been cancelled</span>
+              </div>
+            ) : (
+              <button 
+                className="donate-button"
+                onClick={() => setIsDonationModalOpen(true)}
+              >
+                <CircleDollarSign size={20} />
+                Make a Donation
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Campaign Information */}
+        <div className="campaign-info-grid">
+          <div className="info-card">
+            <div className="info-header">
+              <Target size={24} />
+              <h3>Campaign Goal</h3>
+            </div>
+            <div className="info-content">
+              <p>
+                This fundraising campaign aims to raise emergency funds for disaster relief 
+                and community support. Donations are accepted in both STX and sBTC to maximize 
+                accessibility and support for those in need.
+              </p>
+            </div>
+          </div>
+
+          <div className="info-card">
+            <div className="info-header">
+              <Users size={24} />
+              <h3>How It Works</h3>
+            </div>
+            <div className="info-content">
+              <ul>
+                <li>Connect your Stacks wallet</li>
+                <li>Choose donation amount in USD</li>
+                <li>Select payment method (STX or sBTC)</li>
+                <li>Confirm transaction in your wallet</li>
+                <li>Receive confirmation and optional NFT receipt</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="info-card">
+            <div className="info-header">
+              <TrendingUp size={24} />
+              <h3>Transparency</h3>
+            </div>
+            <div className="info-content">
+              <p>
+                All donations are recorded on the Stacks blockchain for full transparency. 
+                You can track your contributions and see how funds are being distributed 
+                to beneficiaries in real-time.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Campaign Status Details */}
+        {campaignInfo && (
+          <div className="campaign-details-card">
+            <h3>Campaign Details</h3>
+            <div className="details-grid">
+              <div className="detail-item">
+                <span className="detail-label">Total STX Raised:</span>
+                <span className="detail-value">{formatCurrency(totalStxDisplay, 'STX')}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Total sBTC Raised:</span>
+                <span className="detail-value">{formatCurrency(totalSbtcDisplay, 'sBTC')}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Number of Donations:</span>
+                <span className="detail-value">{campaignInfo.donationCount}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Campaign Status:</span>
+                <span className="detail-value">
+                  {campaignInfo.isCancelled ? 'Cancelled' : 
+                   campaignInfo.isExpired ? 'Ended' : 'Active'}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Funds Withdrawn:</span>
+                <span className="detail-value">{campaignInfo.isWithdrawn ? 'Yes' : 'No'}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="error-card">
+            <AlertCircle size={24} />
+            <div>
+              <h3>Error Loading Campaign</h3>
+              <p>{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="loading-card">
+            <div className="loading-spinner" />
+            <p>Loading campaign information...</p>
           </div>
         )}
       </div>
 
-      {/* Campaign Stats */}
-      <div className="campaign-stats">
-        <div className="stat-card">
-          <h3>Campaign Goal</h3>
-          <p>{(campaignInfo.goal / 1000000).toLocaleString()} STX</p>
-        </div>
-        <div className="stat-card">
-          <h3>Total Raised</h3>
-          <p>{(campaignInfo.totalRaised / 1000000).toLocaleString()} STX</p>
-        </div>
-        <div className="stat-card">
-          <h3>Donors</h3>
-          <p>{campaignInfo.donorCount}</p>
-        </div>
-        <div className="stat-card">
-          <h3>Progress</h3>
-          <p>{progressPercentage.toFixed(1)}%</p>
-        </div>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="progress-section">
-        <div className="progress-bar">
-          <div
-            className="progress-fill"
-            style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-          />
-        </div>
-        <div className="progress-text">
-          {progressPercentage >= 100 ? '🎉 Goal Reached!' : `${progressPercentage.toFixed(1)}% of goal reached`}
-        </div>
-      </div>
-
-      {/* Donation Form */}
-      {userAddress && (
-        <div className="donation-form">
-          <h2>Make a Donation</h2>
-
-          <div className="donation-type-selector">
-            <button
-              className={`type-btn ${donationType === 'stx' ? 'active' : ''}`}
-              onClick={() => setDonationType('stx')}
-            >
-              STX
-            </button>
-            <button
-              className={`type-btn ${donationType === 'sbtc' ? 'active' : ''}`}
-              onClick={() => setDonationType('sbtc')}
-            >
-              sBTC
-            </button>
-          </div>
-
-          <div className="amount-input">
-            <input
-              type="number"
-              value={donationAmount}
-              onChange={(e) => setDonationAmount(e.target.value)}
-              placeholder={`Enter amount in ${donationType.toUpperCase()}`}
-              min="0"
-              step="0.000001"
-            />
-          </div>
-
-          <button
-            onClick={handleDonation}
-            disabled={isLoading || !donationAmount}
-            className="donate-btn"
-          >
-            {isLoading ? 'Processing...' : `Donate ${donationType.toUpperCase()}`}
-          </button>
-
-          {message && (
-            <div className={`message ${message.includes('successful') ? 'success' : 'error'}`}>
-              {message}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Campaign Info */}
-      <div className="campaign-info">
-        <h2>About This Campaign</h2>
-        <p>
-          This fundraising campaign aims to raise funds for important causes using blockchain technology.
-          Your donations are secure, transparent, and tracked on the Stacks blockchain.
-        </p>
-        <ul>
-          <li>✅ 100% transparent fund tracking</li>
-          <li>✅ Smart contract security</li>
-          <li>✅ Instant transaction processing</li>
-          <li>✅ Tax-deductible receipts (where applicable)</li>
-        </ul>
-      </div>
+      {/* Donation Modal */}
+      <DonationModal
+        isOpen={isDonationModalOpen}
+        onClose={() => setIsDonationModalOpen(false)}
+        campaignName="Emergency Relief Fund"
+        campaignId={1}
+      />
     </div>
   );
 };

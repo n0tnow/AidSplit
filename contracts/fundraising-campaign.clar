@@ -94,10 +94,35 @@
   )
 )
 
+;; Donate sBTC. Pass amount in Satoshis.
+;; Note: Temporarily disabled for local testing - sBTC token not available in test environment
+;; (define-public (donate-sbtc (amount uint))
+;;   (begin
+;;     (asserts! (var-get is-campaign-initialized) err-not-initialized)
+;;     (asserts! (not (var-get is-campaign-cancelled)) err-campaign-cancelled)
+;;     (asserts!
+;;       (< burn-block-height
+;;         (+ (var-get campaign-start) (var-get campaign-duration))
+;;       )
+;;       err-campaign-ended
+;;     )
+;;     (try! (contract-call? 'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token
+;;       transfer amount contract-caller (as-contract tx-sender) none
+;;     ))
+;;     (map-set sbtc-donations tx-sender
+;;       (+ (default-to u0 (map-get? sbtc-donations tx-sender)) amount)
+;;     )
+;;     (var-set total-sbtc (+ (var-get total-sbtc) amount))
+;;     (var-set donation-count (+ (var-get donation-count) u1))
+;;     (ok true)
+;;   )
+;; )
+
 ;; Withdraw funds (only beneficiary, only if campaign is ended)
 (define-public (withdraw)
   (let (
       (total-stx-amount (var-get total-stx))
+      ;; (total-sbtc-amount (var-get total-sbtc)) ;; Disabled for testing
     )
     (asserts! (var-get is-campaign-initialized) err-not-initialized)
     (asserts! (not (var-get is-campaign-cancelled)) err-campaign-cancelled)
@@ -116,6 +141,14 @@
         ))
         true
       )
+      ;; sBTC withdrawal disabled for testing
+      ;; (if (> total-sbtc-amount u0)
+      ;;   (try! (contract-call? 'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token
+      ;;     transfer total-sbtc-amount (as-contract tx-sender)
+      ;;     (var-get beneficiary) none
+      ;;   ))
+      ;;   true
+      ;; )
       (var-set is-campaign-withdrawn true)
       (ok true)
     ))
@@ -123,9 +156,11 @@
 )
 
 ;; Refund to donor
+;; Campaign owner can choose to allow this by cancelling the campaign
 (define-public (refund)
   (let (
       (stx-amount (default-to u0 (map-get? stx-donations tx-sender)))
+      ;; (sbtc-amount (default-to u0 (map-get? sbtc-donations tx-sender))) ;; Disabled for testing
       (contributor tx-sender)
     )
     (asserts! (var-get is-campaign-cancelled) err-not-cancelled)
@@ -136,6 +171,16 @@
       true
     )
     (map-delete stx-donations tx-sender)
+    ;; sBTC refund disabled for testing
+    ;; (if (> sbtc-amount u0)
+    ;;   (begin
+    ;;     (as-contract (try! (contract-call? 'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token
+    ;;       transfer sbtc-amount tx-sender contributor none
+    ;;     )))
+    ;;   )
+    ;;   true
+    ;; )
+    ;; (map-delete sbtc-donations tx-sender) ;; Disabled for testing
     (ok true)
   )
 )

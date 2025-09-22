@@ -7,50 +7,55 @@ telemetry = false
 cache_dir = ".clarinet"
 requirements = []
 
-[contracts.campaign-manager]
-path = "contracts/campaign-manager.clar"
+[contracts.distribution-engine-v4]
+path = "contracts/distribution-engine-v3.clar"
 clarity_version = 2
 epoch = 2.4
 
-[contracts.distribution-engine]
-path = "contracts/distribution-engine.clar"
+[contracts.campaign-manager-v4]
+path = "contracts/campaign-manager-v3.clar"
 clarity_version = 2
 epoch = 2.4
 
-[contracts.hierarchy-calculator]
-path = "contracts/hierarchy-calculator.clar" 
+[contracts.hierarchy-calculator-v4]
+path = "contracts/hierarchy-calculator-v3.clar" 
 clarity_version = 2
 epoch = 2.4
 
-[contracts.nft-receipts]
-path = "contracts/nft-receipts.clar"
+[contracts.nft-receipts-v4]
+path = "contracts/nft-receipts-v3.clar"
 clarity_version = 2
 epoch = 2.4
 
-[contracts.access-control]
-path = "contracts/access-control.clar"
+[contracts.access-control-v4]
+path = "contracts/access-control-v3.clar"
 clarity_version = 2
 epoch = 2.4
 
-[contracts.company-auth]
-path = "contracts/company-auth.clar"
+[contracts.company-auth-v4]
+path = "contracts/company-auth-v3.clar"
 clarity_version = 2
 epoch = 2.4
 
-[contracts.donation-targeting]
-path = "contracts/donation-targeting.clar"
+[contracts.donation-targeting-v4]
+path = "contracts/donation-targeting-v3.clar"
 clarity_version = 2
 epoch = 2.4
 
-[contracts.nft-generator]
-path = "contracts/nft-generator.clar"
+[contracts.nft-generator-v4]
+path = "contracts/nft-generator-v3.clar"
+clarity_version = 2
+epoch = 2.4
+
+[contracts.fundraising-campaign]
+path = "contracts/fundraising-campaign.clar"
 clarity_version = 2
 epoch = 2.4
 
 # Test accounts with proper STX balances
 [[project.accounts]]
 name = "deployer"
-address = "ST1HTBVD3JG9C05J7HBJTHGR0GGW7KXW28M5JS8QE"
+address = "STDTF2Q74P3FWMP4DT6D9SW8G6FY293XVP6G8RPM"
 balance = 100000000000000  # 100M STX
 
 [[project.accounts]]

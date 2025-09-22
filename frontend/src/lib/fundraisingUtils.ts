@@ -1,4 +1,4 @@
-import {
+import { 
   makeContractCall,
   uintCV,
   principalCV,
@@ -45,7 +45,7 @@ export const getContributeStxTx = (
     functionArgs: [uintCV(options.amount)],
     network: getNetwork(),
     anchorMode: AnchorMode.Any,
-    postConditionMode: PostConditionMode.Allow
+    postConditionMode: PostConditionMode.Allow // Allow for now, should set proper post-conditions in production
   };
 };
 
@@ -61,7 +61,7 @@ export const getContributeSbtcTx = (
     functionArgs: [uintCV(options.amount)],
     network: getNetwork(),
     anchorMode: AnchorMode.Any,
-    postConditionMode: PostConditionMode.Allow
+    postConditionMode: PostConditionMode.Allow // Allow for now, should set proper post-conditions in production
   };
 };
 
@@ -79,4 +79,55 @@ export const getInitializeCampaignTx = (
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow
   };
+};
+
+// Cancel campaign
+export const cancelCampaign = async (
+  onFinish?: (data: any) => void
+) => {
+  const contractCall = {
+    contractAddress: CONTRACT_ADDRESS,
+    contractName: CONTRACTS.FUNDRAISING_CAMPAIGN,
+    functionName: 'cancel-campaign',
+    functionArgs: [],
+    network: getNetwork(),
+    anchorMode: AnchorMode.Any,
+    postConditionMode: PostConditionMode.Allow
+  };
+
+  return contractCall;
+};
+
+// Withdraw funds
+export const withdrawFunds = async (
+  onFinish?: (data: any) => void
+) => {
+  const contractCall = {
+    contractAddress: CONTRACT_ADDRESS,
+    contractName: CONTRACTS.FUNDRAISING_CAMPAIGN,
+    functionName: 'withdraw',
+    functionArgs: [],
+    network: getNetwork(),
+    anchorMode: AnchorMode.Any,
+    postConditionMode: PostConditionMode.Allow
+  };
+
+  return contractCall;
+};
+
+// Request refund
+export const requestRefund = async (
+  onFinish?: (data: any) => void
+) => {
+  const contractCall = {
+    contractAddress: CONTRACT_ADDRESS,
+    contractName: CONTRACTS.FUNDRAISING_CAMPAIGN,
+    functionName: 'refund',
+    functionArgs: [],
+    network: getNetwork(),
+    anchorMode: AnchorMode.Any,
+    postConditionMode: PostConditionMode.Allow
+  };
+
+  return contractCall;
 };

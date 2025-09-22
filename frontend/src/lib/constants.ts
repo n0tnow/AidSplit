@@ -29,7 +29,7 @@ export const NETWORK_URLS = {
 // Explorer URLs
 export const EXPLORER_URLS = {
   testnet: 'https://explorer.hiro.so',
-  mainnet: 'https://explorer.hiro.so',
+  mainnet: 'https://explorer.hiro.so', 
   devnet: 'http://localhost:8000'
 };
 

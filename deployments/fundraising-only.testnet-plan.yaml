@@ -1,0 +1,18 @@
+---
+id: 1
+name: Fundraising Campaign Deployment
+network: testnet
+stacks-node: "https://api.testnet.hiro.so"
+bitcoin-node: "http://blockstack:blockstacksystem@bitcoind.testnet.stacks.co:18332"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: fundraising-campaign-v1
+            expected-sender: STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4
+            cost: 85000
+            path: "contracts\\fundraising-campaign.clar"
+            anchor-block-only: true
+            clarity-version: 2
+      epoch: "2.4"

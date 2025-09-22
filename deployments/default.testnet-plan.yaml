@@ -1,0 +1,74 @@
+---
+id: 0
+name: Testnet deployment
+network: testnet
+stacks-node: "https://api.testnet.hiro.so"
+bitcoin-node: "http://blockstack:blockstacksystem@bitcoind.testnet.stacks.co:18332"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: access-control-v6
+            expected-sender: STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4
+            cost: 38260
+            path: "contracts\\access-control-v3.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: company-auth-v6
+            expected-sender: STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4
+            cost: 70780
+            path: "contracts\\company-auth-v3.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: distribution-engine-v6
+            expected-sender: STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4
+            cost: 88210
+            path: "contracts\\distribution-engine-v3.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: donation-targeting-v6
+            expected-sender: STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4
+            cost: 61670
+            path: "contracts\\donation-targeting-v3.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: hierarchy-calculator-v6
+            expected-sender: STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4
+            cost: 71760
+            path: "contracts\\hierarchy-calculator-v3.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: nft-receipts-v6
+            expected-sender: STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4
+            cost: 63620
+            path: "contracts\\nft-receipts-v3.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: campaign-manager-v6
+            expected-sender: STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4
+            cost: 184670
+            path: "contracts\\campaign-manager-v3.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: nft-generator-v6
+            expected-sender: STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4
+            cost: 51500
+            path: "contracts\\nft-generator-v3.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: fundraising-campaign
+            expected-sender: STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4
+            cost: 85000
+            path: "contracts\\fundraising-campaign.clar"
+            anchor-block-only: true
+            clarity-version: 2
+      epoch: "2.4"

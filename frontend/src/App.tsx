@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { WalletProvider } from './contexts/WalletContext';
 import Header from './components/Header';
 import Homepage from './components/Homepage';
 import FeaturePage from './components/FeaturePage';
 import DisasterReliefPage from './components/DisasterReliefPage';
 import PayrollSystemPage from './components/PayrollSystemPage';
 import NFTReceiptsPage from './components/NFTReceiptsPage';
+import FundraisingPage from './components/FundraisingPage';
+import ManualMintPage from './components/ManualMintPage';
 import './App.css';
 
 function App() {
@@ -45,18 +48,24 @@ function App() {
         return <PayrollSystemPage onBack={handleBack} />;
       case 'nft-receipts':
         return <NFTReceiptsPage onBack={handleBack} />;
+      case 'fundraising':
+        return <FundraisingPage onBack={handleBack} />;
+      case 'manual-mint':
+        return <ManualMintPage />;
       default:
         return <FeaturePage featureId={currentView} onBack={handleBack} />;
     }
   };
 
   return (
-    <div className="App">
-      <Header currentView={currentView} onNavigate={handleNavigate} />
-      <main className="main-content">
-        {renderCurrentView()}
-      </main>
-    </div>
+    <WalletProvider>
+      <div className="App">
+        <Header currentView={currentView} onNavigate={handleNavigate} />
+        <main className="main-content">
+          {renderCurrentView()}
+        </main>
+      </div>
+    </WalletProvider>
   );
 }
 

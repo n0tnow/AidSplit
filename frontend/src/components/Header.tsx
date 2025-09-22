@@ -1,6 +1,6 @@
 import React from 'react';
 import './Header.css';
-import { useStacksWallet } from '../hooks/useStacksWallet';
+import { useWallet } from '../contexts/WalletContext';
 
 // Lucide React Icons
 import { Users, Home, AlertTriangle, Building, CircleDollarSign, Wallet, LogOut, ExternalLink } from 'lucide-react';
@@ -13,26 +13,28 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
   const { 
     isConnected, 
-    isConnecting, 
-    shortAddress, 
+    isLoading, 
+    userAddress, 
     userRole, 
-    connect, 
-    disconnect,
-    getAddressExplorerLink,
-    address
-  } = useStacksWallet();
+    connectWallet, 
+    disconnectWallet
+  } = useWallet();
 
   const handleWalletAction = () => {
     if (isConnected) {
-      disconnect();
+      disconnectWallet();
     } else {
-      connect();
+      connectWallet();
     }
   };
 
+  const shortAddress = userAddress ? `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}` : '';
+
   const openExplorer = () => {
-    if (address) {
-      window.open(getAddressExplorerLink(address), '_blank');
+    if (userAddress) {
+      const baseUrl = 'https://explorer.stacks.co';
+      const chainParam = '?chain=testnet';
+      window.open(`${baseUrl}/address/${userAddress}${chainParam}`, '_blank');
     }
   };
 
@@ -112,10 +114,10 @@ const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
           <button 
             className="wallet-connect-button"
             onClick={handleWalletAction}
-            disabled={isConnecting}
+            disabled={isLoading}
           >
             <Wallet size={18} style={{ marginRight: '8px' }} />
-            {isConnecting ? 'Connecting...' : 'Connect Leather'}
+            {isLoading ? 'Connecting...' : 'Connect Leather'}
           </button>
         )}
       </div>

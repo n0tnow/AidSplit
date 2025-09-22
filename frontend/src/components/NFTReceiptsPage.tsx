@@ -13,10 +13,12 @@ import {
   X,
   Plus,
   Download,
-  Share2,
   Heart
 } from 'lucide-react';
+import { useWallet } from '../contexts/WalletContext';
+import { createDonationNFT, createPayrollNFT, DonationNFTData, PayrollNFTData } from '../lib/nftService';
 import './NFTReceiptsPage.css';
+import './NFTReceiptsPage-mint.css';
 
 interface NFTReceiptsPageProps {
   onBack: () => void;
@@ -32,7 +34,8 @@ interface NFTReceipt {
   recipient: string;
   issuer: string;
   issuedAt: string;
-  txHash: string;
+  txHash: string; // This is the donation/transaction hash (what we want to show in explorer)
+  nftMintTxHash?: string; // This is the NFT mint transaction hash (optional)
   imageUrl?: string;
   metadata: {
     category: string;
@@ -122,9 +125,7 @@ const NFTOptimizedBackground: React.FC = () => {
 };
 
 const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
-  const [userAddress, setUserAddress] = useState('');
-  const [userRole, setUserRole] = useState<'admin' | 'donor' | 'organization' | null>(null);
+  const { isConnected, userSession, userAddress, userRole } = useWallet();
   const [nftReceipts, setNftReceipts] = useState<NFTReceipt[]>([]);
   const [filteredReceipts, setFilteredReceipts] = useState<NFTReceipt[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -140,120 +141,54 @@ const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
     message: '',
   });
 
-  // Initialize mock data
+  // Load real NFT receipts from localStorage
   useEffect(() => {
-    const mockNFTReceipts: NFTReceipt[] = [
-      {
-        id: 1,
-        tokenId: "NFT-RCP-001",
-        campaignId: 1,
-        campaignName: "Istanbul Earthquake Relief",
-        type: 'donation',
-        amount: 500,
-        recipient: "SP1DONOR123...ABC",
-        issuer: "SP1ADMIN456...XYZ",
-        issuedAt: "2024-09-15T10:30:00Z",
-        txHash: "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
-        imageUrl: "https://via.placeholder.com/300x300/10b981/ffffff?text=Donation+Receipt",
-        metadata: {
-          category: "Disaster Relief",
-          rarity: 'rare',
-          attributes: [
-            { trait: "Campaign Type", value: "Earthquake Relief" },
-            { trait: "Amount", value: "500 STX" },
-            { trait: "Date", value: "September 2024" },
-            { trait: "Impact", value: "High" }
-          ]
-        },
-        isSoulbound: true,
-        isOwned: true
-      },
-      {
-        id: 2,
-        tokenId: "NFT-RCP-002",
-        campaignId: 2,
-        campaignName: "October 2024 Payroll",
-        type: 'salary',
-        amount: 1800,
-        recipient: "SP1EMP789...DEF",
-        issuer: "SP1COMPANY...GHI",
-        issuedAt: "2024-10-01T15:45:00Z",
-        txHash: "0x2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c",
-        imageUrl: "https://via.placeholder.com/300x300/3b82f6/ffffff?text=Salary+Receipt",
-        metadata: {
-          category: "Payroll",
-          rarity: 'common',
-          attributes: [
-            { trait: "Employee Role", value: "Senior Developer" },
-            { trait: "Department", value: "Engineering" },
-            { trait: "Amount", value: "1800 STX" },
-            { trait: "Month", value: "October 2024" }
-          ]
-        },
-        isSoulbound: true,
-        isOwned: true
-      },
-      {
-        id: 3,
-        tokenId: "NFT-RCP-003",
-        campaignId: 1,
-        campaignName: "Forest Fire Relief",
-        type: 'relief-claim',
-        amount: 2500,
-        recipient: "SP1ORG456...JKL",
-        issuer: "SP1ADMIN789...MNO",
-        issuedAt: "2024-09-20T09:15:00Z",
-        txHash: "0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d",
-        imageUrl: "https://via.placeholder.com/300x300/f59e0b/ffffff?text=Relief+Claim",
-        metadata: {
-          category: "Organization Claim",
-          rarity: 'epic',
-          attributes: [
-            { trait: "Organization", value: "Turkish Red Crescent" },
-            { trait: "Relief Type", value: "Forest Fire" },
-            { trait: "Amount", value: "2500 STX" },
-            { trait: "Impact Level", value: "Critical" }
-          ]
-        },
-        isSoulbound: true,
-        isOwned: false
-      },
-      {
-        id: 4,
-        tokenId: "NFT-RCP-004",
-        campaignId: 3,
-        campaignName: "Reforestation Initiative",
-        type: 'donation',
-        amount: 750,
-        recipient: "SP1DONOR987...PQR",
-        issuer: "SP1ADMIN654...STU",
-        issuedAt: "2024-09-25T14:20:00Z",
-        txHash: "0x4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e",
-        imageUrl: "https://via.placeholder.com/300x300/22c55e/ffffff?text=Green+Donation",
-        metadata: {
-          category: "Environmental",
-          rarity: 'legendary',
-          attributes: [
-            { trait: "Project", value: "Tree Planting" },
-            { trait: "Trees Funded", value: "37" },
-            { trait: "Amount", value: "750 STX" },
-            { trait: "CO2 Offset", value: "15 tons/year" }
-          ]
-        },
-        isSoulbound: true,
-        isOwned: true
+    const loadNFTReceipts = () => {
+      try {
+        // Load NFT receipts created by donation flow
+        const storedReceipts = localStorage.getItem('aidsplit-nft-receipts');
+        const receipts = storedReceipts ? JSON.parse(storedReceipts) : [];
+        
+        // Loading NFT receipts...
+        
+        // Transform receipts to match component interface
+        const transformedReceipts: NFTReceipt[] = receipts.map((receipt: any) => ({
+          ...receipt,
+          isOwned: true // All receipts in localStorage belong to current user
+        }));
+
+        setNftReceipts(transformedReceipts);
+        setFilteredReceipts(transformedReceipts);
+        
+        if (transformedReceipts.length > 0) {
+          // ✅ Loaded NFT receipts
+        } else {
+          // No NFT receipts found
+        }
+      } catch (error) {
+        console.error('❌ Error loading NFT receipts:', error);
+        setNftReceipts([]);
+        setFilteredReceipts([]);
       }
-    ];
+    };
 
-    setNftReceipts(mockNFTReceipts);
-    setFilteredReceipts(mockNFTReceipts);
+    loadNFTReceipts();
 
-    // Auto-connect wallet for demo
-    setTimeout(() => {
-      setIsWalletConnected(true);
-      setUserAddress('SP1USER123...DEMO');
-      setUserRole('donor');
-    }, 1000);
+    // Wallet connection is now handled by the global wallet context
+
+    // Listen for storage changes to update receipts in real-time
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'aidsplit-nft-receipts') {
+        // ✅ Reloading updated receipts
+        loadNFTReceipts();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   // Filter receipts based on selected filter and search
@@ -279,7 +214,7 @@ const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
 
   // Utility functions
   const getExplorerLink = (txHash: string): string => {
-    return `https://explorer.hiro.so/txid/${txHash}?chain=mainnet`;
+    return `https://explorer.hiro.so/txid/${txHash}?chain=testnet`;
   };
 
   const copyToClipboard = (text: string) => {
@@ -287,55 +222,117 @@ const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
     // You could add a toast notification here
   };
 
-  const connectWallet = async () => {
-    setIsLoading(true);
-    // Simulate wallet connection
-    setTimeout(() => {
-      setIsWalletConnected(true);
-      setUserAddress('SP1USER123...DEMO');
-      setUserRole(['admin', 'donor', 'organization'][Math.floor(Math.random() * 3)] as any);
-      setIsLoading(false);
-    }, 1500);
+  const downloadNFT = (receipt: NFTReceipt) => {
+    // Create download link for the NFT image
+    if (receipt.imageUrl) {
+      const link = document.createElement('a');
+      link.href = receipt.imageUrl;
+      link.download = `${receipt.tokenId}-${receipt.type}-receipt.svg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
-  const mintNewNFT = async () => {
+  const openExplorer = (txHash: string) => {
+    const explorerUrl = `https://explorer.stacks.co/txid/${txHash}?chain=testnet`;
+    window.open(explorerUrl, '_blank');
+  };
+
+
+  const mintNewNFT = async (receiptType: any) => {
     setIsLoading(true);
-    // Simulate NFT minting
-    setTimeout(() => {
+    
+    try {
+      console.log('🎯 Creating NFT receipt of type:', receiptType);
+      
+      // Create realistic test data based on receipt type
+      const isDonationType = !['salary', 'bonus', 'pension', 'overtime'].includes(receiptType);
+      
+      let nftResult;
+      
+      if (isDonationType) {
+        const testDonationData: DonationNFTData = {
+          donorAddress: userAddress || 'SP1TEST...DEMO',
+          amount: Math.floor(Math.random() * 1000) + 50,
+          campaignName: `${receiptType.replace('-', ' ').toUpperCase()} Campaign`,
+          targetOrg: "Relief Organization",
+          timestamp: new Date().toISOString(),
+          txHash: `0x${Math.random().toString(16).substr(2, 40)}`,
+          receiptType: receiptType
+        };
+
+        nftResult = await createDonationNFT(null, testDonationData, 999);
+      } else {
+        const testPayrollData: PayrollNFTData = {
+          employeeAddress: userAddress || 'SP1TEST...DEMO',
+          amount: Math.floor(Math.random() * 3000) + 500,
+          period: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+          department: "Engineering",
+          timestamp: new Date().toISOString(),
+          txHash: `0x${Math.random().toString(16).substr(2, 40)}`,
+          receiptType: receiptType
+        };
+
+        nftResult = await createPayrollNFT(null, testPayrollData, 999);
+      }
+      
+      const amount = isDonationType ? Math.floor(Math.random() * 1000) + 50 : Math.floor(Math.random() * 3000) + 500;
+      
       const newNFT: NFTReceipt = {
-        id: nftReceipts.length + 1,
-        tokenId: `NFT-RCP-${String(nftReceipts.length + 1).padStart(3, '0')}`,
+        id: nftResult.nftId,
+        tokenId: `NFT-RCP-${String(nftResult.nftId).padStart(3, '0')}`,
         campaignId: 999,
-        campaignName: "Test Campaign",
-        type: 'donation',
-        amount: 100,
-        recipient: userAddress,
+        campaignName: isDonationType ? `${receiptType.replace('-', ' ').toUpperCase()} Campaign` : 
+                     new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        type: receiptType,
+        amount: amount,
+        recipient: userAddress || '',
         issuer: "SP1ADMIN...TEST",
         issuedAt: new Date().toISOString(),
-        txHash: "0xTEST123...NEW",
-        imageUrl: "https://via.placeholder.com/300x300/8b5cf6/ffffff?text=New+NFT",
+        txHash: nftResult.txHash,
+        imageUrl: nftResult.imageUrl,
         metadata: {
-          category: "Test",
+          category: isDonationType ? "Donation" : "Payroll",
           rarity: 'common',
           attributes: [
-            { trait: "Type", value: "Test Receipt" },
-            { trait: "Amount", value: "100 STX" }
+            { trait: "Type", value: receiptType.replace('-', ' ').toUpperCase() },
+            { trait: "Amount", value: `${amount} STX` },
+            { trait: "Date", value: new Date().toLocaleDateString() }
           ]
         },
         isSoulbound: true,
         isOwned: true
       };
 
+      // Add to local storage
+      const existingReceipts = JSON.parse(localStorage.getItem('aidsplit-nft-receipts') || '[]');
+      existingReceipts.unshift(newNFT);
+      localStorage.setItem('aidsplit-nft-receipts', JSON.stringify(existingReceipts));
+
+      // Update state
       setNftReceipts(prev => [newNFT, ...prev]);
+      setFilteredReceipts(prev => [newNFT, ...prev]);
+      
       setSuccessModal({
         isOpen: true,
-        title: 'NFT Minted Successfully!',
-        message: 'Your new NFT receipt has been created and added to your collection.',
+        title: 'NFT Receipt Created!',
+        message: `Your ${receiptType.replace('-', ' ')} NFT receipt has been successfully created and minted to your wallet.`,
         nftReceiptId: newNFT.id,
         txHash: newNFT.txHash
       });
+      
+      console.log('✅ NFT Receipt created successfully');
+    } catch (error) {
+      console.error('❌ Error creating NFT receipt:', error);
+      setSuccessModal({
+        isOpen: true,
+        title: 'Error',
+        message: 'Failed to create NFT receipt. Please try again.',
+      });
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   const closeModal = () => {
@@ -362,7 +359,7 @@ const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
     }
   };
 
-  if (!isWalletConnected) {
+  if (!isConnected) {
     return (
       <div className="nft-page">
         <NFTOptimizedBackground />
@@ -391,18 +388,9 @@ const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
                 </div>
               </div>
               
-              <button 
-                className="connect-wallet-btn"
-                onClick={connectWallet}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Connecting...' : (
-                  <>
-                    <Wallet size={20} />
-                    Connect Wallet
-                  </>
-                )}
-              </button>
+              <div className="wallet-info">
+                <p>Please connect your wallet using the header button to view your NFT receipts.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -430,7 +418,7 @@ const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
             </div>
             <div className="user-info liquid-glass-card">
               <Wallet size={20} />
-              <span>{userAddress.substring(0, 8)}...{userAddress.slice(-4)}</span>
+              <span>{userAddress ? `${userAddress.substring(0, 8)}...${userAddress.slice(-4)}` : 'Not Connected'}</span>
               <span className={`role-badge ${userRole}`}>{userRole}</span>
             </div>
           </div>
@@ -526,13 +514,21 @@ const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
               <div className="nft-grid">
                 {filteredReceipts.filter(r => r.isOwned).map(receipt => (
                   <div key={receipt.id} className="nft-card liquid-glass-card owned">
-                    <div className="nft-image">
+                    <div 
+                      className="nft-image"
+                      onClick={() => setSelectedNFT(receipt)}
+                    >
                       <img src={receipt.imageUrl} alt={receipt.campaignName} />
                       <div className="owned-indicator">
                         <CheckCircle size={24} />
                       </div>
-                      <div className="rarity-badge" style={{ backgroundColor: getRarityColor(receipt.metadata.rarity) }}>
-                        {receipt.metadata.rarity}
+                      <div className="nft-overlay-info">
+                        <div className="tx-info">
+                          <span className="tx-id">TX: {receipt.txHash.substring(0, 12)}...</span>
+                        </div>
+                        <div className="address-info">
+                          <span className="recipient">To: {receipt.recipient.substring(0, 8)}...</span>
+                        </div>
                       </div>
                     </div>
                     
@@ -566,13 +562,19 @@ const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
                           <Eye size={16} />
                           View
                         </button>
-                        <button className="action-btn">
+                        <button 
+                          className="action-btn"
+                          onClick={() => downloadNFT(receipt)}
+                        >
                           <Download size={16} />
                           Download
                         </button>
-                        <button className="action-btn">
-                          <Share2 size={16} />
-                          Share
+                        <button 
+                          className="action-btn"
+                          onClick={() => openExplorer(receipt.txHash)}
+                        >
+                          <ExternalLink size={16} />
+                          Explorer
                         </button>
                       </div>
                     </div>
@@ -622,7 +624,7 @@ const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
                       <button
                         className="action-btn mini"
                         onClick={() => window.open(getExplorerLink(receipt.txHash), '_blank')}
-                        title="View on Explorer"
+                        title="View Donation Transaction on Explorer"
                       >
                         <ExternalLink size={14} />
                       </button>
@@ -659,29 +661,108 @@ const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
             <div className="mint-section">
               <div className="section-header">
                 <h2>Mint New NFT Receipt</h2>
-                <p>Create new blockchain certificates</p>
+                <p>Create blockchain certificates for different types of transactions</p>
               </div>
               
-              <div className="mint-card glass-card">
-                <div className="mint-header">
-                  <Plus size={48} color="#10b981" />
-                  <h3>Create NFT Receipt</h3>
-                  <p>Generate a new soulbound certificate</p>
+              <div className="mint-categories">
+                {/* Donation Types */}
+                <div className="mint-category">
+                  <h3>🎯 Donation Receipts</h3>
+                  <div className="mint-buttons-grid">
+                    <button
+                      className="mint-btn donation-btn"
+                      onClick={() => mintNewNFT('donation')}
+                      disabled={isLoading}
+                    >
+                      💝 General Donation
+                    </button>
+                    <button
+                      className="mint-btn emergency-btn"
+                      onClick={() => mintNewNFT('emergency-relief')}
+                      disabled={isLoading}
+                    >
+                      🚨 Emergency Relief
+                    </button>
+                    <button
+                      className="mint-btn medical-btn"
+                      onClick={() => mintNewNFT('medical-aid')}
+                      disabled={isLoading}
+                    >
+                      🏥 Medical Aid
+                    </button>
+                    <button
+                      className="mint-btn education-btn"
+                      onClick={() => mintNewNFT('education-fund')}
+                      disabled={isLoading}
+                    >
+                      🎓 Education Fund
+                    </button>
+                    <button
+                      className="mint-btn disaster-btn"
+                      onClick={() => mintNewNFT('disaster-relief')}
+                      disabled={isLoading}
+                    >
+                      🆘 Disaster Relief
+                    </button>
+                    <button
+                      className="mint-btn food-btn"
+                      onClick={() => mintNewNFT('food-aid')}
+                      disabled={isLoading}
+                    >
+                      🍽️ Food Aid
+                    </button>
+                    <button
+                      className="mint-btn housing-btn"
+                      onClick={() => mintNewNFT('housing-assistance')}
+                      disabled={isLoading}
+                    >
+                      🏠 Housing Assistance
+                    </button>
+                  </div>
                 </div>
-                
-                <button
-                  className="mint-btn primary-btn"
-                  onClick={mintNewNFT}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Minting...' : (
-                    <>
-                      <Plus size={20} />
-                      Mint Test NFT
-                    </>
-                  )}
-                </button>
+
+                {/* Payroll Types */}
+                <div className="mint-category">
+                  <h3>💼 Payroll Receipts</h3>
+                  <div className="mint-buttons-grid">
+                    <button
+                      className="mint-btn salary-btn"
+                      onClick={() => mintNewNFT('salary')}
+                      disabled={isLoading}
+                    >
+                      💼 Monthly Salary
+                    </button>
+                    <button
+                      className="mint-btn bonus-btn"
+                      onClick={() => mintNewNFT('bonus')}
+                      disabled={isLoading}
+                    >
+                      🏆 Performance Bonus
+                    </button>
+                    <button
+                      className="mint-btn pension-btn"
+                      onClick={() => mintNewNFT('pension')}
+                      disabled={isLoading}
+                    >
+                      👴 Pension Payment
+                    </button>
+                    <button
+                      className="mint-btn overtime-btn"
+                      onClick={() => mintNewNFT('overtime')}
+                      disabled={isLoading}
+                    >
+                      ⏰ Overtime Payment
+                    </button>
+                  </div>
+                </div>
               </div>
+
+              {isLoading && (
+                <div className="minting-status">
+                  <div className="loading-spinner"></div>
+                  <p>Creating NFT receipt and uploading to IPFS...</p>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -698,145 +779,201 @@ const NFTReceiptsPage: React.FC<NFTReceiptsPageProps> = ({ onBack }) => {
               </button>
             </div>
             
-            <div className="modal-content">
-              <div className="nft-detail-image">
-                <img src={selectedNFT.imageUrl} alt={selectedNFT.campaignName} />
-                <div 
-                  className={`rarity-indicator ${selectedNFT.metadata.rarity}`}
-                  style={{ borderColor: getRarityColor(selectedNFT.metadata.rarity) }}
-                >
-                  {selectedNFT.metadata.rarity}
-                </div>
+            <div className="modal-content" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              {/* NFT Image Section - Top */}
+              <div className="nft-detail-image-section" style={{ textAlign: 'center' }}>
+                <img 
+                  src={selectedNFT.imageUrl} 
+                  alt={selectedNFT.campaignName} 
+                  style={{ 
+                    maxWidth: '400px', 
+                    width: '100%', 
+                    borderRadius: '16px', 
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                    border: '2px solid rgba(16, 185, 129, 0.2)'
+                  }}
+                />
               </div>
-              
-              <div className="nft-detail-info">
-                <h3>{selectedNFT.tokenId}</h3>
-                <p className="campaign-name">{selectedNFT.campaignName}</p>
-                
-                <div className="detail-section">
-                  <h4>Receipt Information</h4>
-                  <div className="detail-grid">
-                    <div className="detail-item">
-                      <span>Type:</span>
-                      <span>{selectedNFT.type}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span>Amount:</span>
-                      <span className="amount">{selectedNFT.amount.toLocaleString()} STX</span>
-                    </div>
-                    <div className="detail-item">
-                      <span>Issued:</span>
-                      <span>{new Date(selectedNFT.issuedAt).toLocaleDateString()}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span>Category:</span>
-                      <span>{selectedNFT.metadata.category}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="detail-section">
-                  <h4>Attributes</h4>
-                  <div className="attributes-grid">
-                    {selectedNFT.metadata.attributes.map((attr, index) => (
-                      <div key={index} className="attribute-item">
-                        <span className="trait">{attr.trait}</span>
-                        <span className="value">{attr.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="detail-section">
-                  <h4>Blockchain Details</h4>
-                  <div className="blockchain-info">
-                    <div className="detail-item">
-                      <span>Recipient:</span>
-                      <span className="address">{selectedNFT.recipient}</span>
-                      <button onClick={() => copyToClipboard(selectedNFT.recipient)}>
-                        <Copy size={16} />
-                      </button>
-                    </div>
-                    <div className="detail-item">
-                      <span>Transaction:</span>
-                      <span className="hash">{selectedNFT.txHash.substring(0, 20)}...</span>
-                      <button onClick={() => copyToClipboard(selectedNFT.txHash)}>
-                        <Copy size={16} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="modal-actions">
-                  <button
-                    className="action-btn primary"
-                    onClick={() => window.open(getExplorerLink(selectedNFT.txHash), '_blank')}
-                  >
-                    <ExternalLink size={20} />
-                    View on Explorer
-                  </button>
-                  {selectedNFT.isOwned && (
-                    <button className="action-btn">
-                      <Download size={20} />
-                      Download
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Success Modal */}
-      {successModal.isOpen && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="success-modal glass-card" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <CheckCircle size={48} color="#10b981" />
-              <h2>{successModal.title}</h2>
-              <button className="close-btn" onClick={closeModal}>×</button>
-            </div>
-            
-            <div className="modal-content">
-              <p>{successModal.message}</p>
+              {/* NFT Info Section - Bottom */}
+              <div className="nft-detail-info-section" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
               
-              {successModal.nftReceiptId && (
-                <div className="nft-receipt">
-                  <h3>NFT Receipt Generated</h3>
-                  <div className="nft-card">
-                    <div className="nft-preview">🎫</div>
-                    <div className="nft-info">
-                      <span className="nft-id">NFT #{successModal.nftReceiptId}</span>
-                      <span className="nft-desc">Blockchain Receipt</span>
+                <div className="left-info">
+                  <h3 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: '#10b981', textAlign: 'center' }}>
+                    {selectedNFT.tokenId}
+                  </h3>
+                  <p style={{ fontSize: '1.2rem', marginBottom: '2rem', color: '#888', textAlign: 'center' }}>
+                    {selectedNFT.campaignName}
+                  </p>
+                  
+                  <div className="detail-section" style={{ marginBottom: '2rem' }}>
+                    <h4 style={{ color: '#10b981', marginBottom: '1rem', fontSize: '1.2rem' }}>Receipt Information</h4>
+                    <div className="detail-grid" style={{ display: 'grid', gap: '1rem' }}>
+                      <div className="detail-item" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', padding: '1rem', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.1)' }}>
+                        <span style={{ fontWeight: 'bold', color: '#10b981' }}>Type:</span>
+                        <span style={{ color: '#fff', textAlign: 'right', textTransform: 'capitalize', fontWeight: '600' }}>
+                          {selectedNFT.type.replace('-', ' ')}
+                        </span>
+                      </div>
+                      <div className="detail-item" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', padding: '1rem', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.1)' }}>
+                        <span style={{ fontWeight: 'bold', color: '#10b981' }}>Amount:</span>
+                        <span style={{ color: '#10b981', fontWeight: 'bold', textAlign: 'right', fontSize: '1.1rem' }}>
+                          {selectedNFT.amount.toLocaleString()} STX
+                        </span>
+                      </div>
+                      <div className="detail-item" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', padding: '1rem', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.1)' }}>
+                        <span style={{ fontWeight: 'bold', color: '#10b981' }}>Issued:</span>
+                        <span style={{ color: '#fff', textAlign: 'right', fontWeight: '600' }}>
+                          {new Date(selectedNFT.issuedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="detail-item" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', padding: '1rem', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.1)' }}>
+                        <span style={{ fontWeight: 'bold', color: '#10b981' }}>Campaign:</span>
+                        <span style={{ color: '#fff', textAlign: 'right', fontWeight: '600' }}>
+                          {selectedNFT.campaignName}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              )}
-              
-              {successModal.txHash && (
-                <div className="blockchain-info">
-                  <h3>Transaction Details</h3>
-                  <div className="tx-info">
-                    <span className="tx-label">Transaction Hash:</span>
-                    <div className="tx-hash">
-                      <span>{successModal.txHash.substring(0, 20)}...</span>
-                      <button onClick={() => copyToClipboard(successModal.txHash!)}>
-                        <Copy size={16} />
-                      </button>
+                
+                <div className="right-info">
+                  <div className="detail-section" style={{ marginBottom: '2rem' }}>
+                    <h4 style={{ color: '#10b981', marginBottom: '1rem', fontSize: '1.2rem' }}>Blockchain Verification</h4>
+                    <div className="blockchain-info" style={{ display: 'grid', gap: '1rem' }}>
+                      <div className="detail-item" style={{ padding: '1rem', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.1)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                          <span style={{ fontWeight: 'bold', color: '#10b981' }}>Recipient Address:</span>
+                          <button 
+                            onClick={() => copyToClipboard(selectedNFT.recipient)}
+                            style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: '0.25rem' }}
+                            title="Copy Address"
+                          >
+                            <Copy size={16} />
+                          </button>
+                        </div>
+                        <div className="address" style={{ 
+                          color: '#fff', 
+                          fontSize: '0.8rem', 
+                          fontFamily: 'monospace', 
+                          wordBreak: 'break-all',
+                          padding: '0.5rem',
+                          backgroundColor: 'rgba(0,0,0,0.3)',
+                          borderRadius: '6px',
+                          border: '1px solid rgba(16,185,129,0.2)'
+                        }}>
+                          {selectedNFT.recipient}
+                        </div>
+                      </div>
+                      
+                      <div className="detail-item" style={{ padding: '1rem', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.1)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                          <span style={{ fontWeight: 'bold', color: '#10b981' }}>Donation Transaction Hash:</span>
+                          <button
+                            onClick={() => copyToClipboard(selectedNFT.txHash)}
+                            style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: '0.25rem' }}
+                            title="Copy Donation TX Hash"
+                          >
+                            <Copy size={16} />
+                          </button>
+                        </div>
+                        <div className="hash" style={{ 
+                          color: '#fff', 
+                          fontSize: '0.8rem', 
+                          fontFamily: 'monospace', 
+                          wordBreak: 'break-all',
+                          padding: '0.5rem',
+                          backgroundColor: 'rgba(0,0,0,0.3)',
+                          borderRadius: '6px',
+                          border: '1px solid rgba(16,185,129,0.2)'
+                        }}>
+                          {selectedNFT.txHash}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <a 
-                    href={getExplorerLink(successModal.txHash)}
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="explorer-link"
+                </div>
+              </div>
+              
+              {/* Action Buttons - Full Width */}
+              <div className="modal-actions" style={{ 
+                display: 'flex', 
+                gap: '1rem', 
+                justifyContent: 'center', 
+                marginTop: '2rem',
+                paddingTop: '2rem',
+                borderTop: '1px solid rgba(16, 185, 129, 0.2)'
+              }}>
+                <button
+                  onClick={() => openExplorer(selectedNFT.txHash)}
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: '0.75rem',
+                    padding: '1rem 2rem',
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                    minWidth: '140px'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = '#059669';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.4)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = '#10b981';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+                  }}
+                >
+                  <ExternalLink size={18} />
+                  View Donation TX
+                </button>
+                
+                {selectedNFT.isOwned && (
+                  <button 
+                    onClick={() => downloadNFT(selectedNFT)}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      gap: '0.75rem',
+                      padding: '1rem 2rem',
+                      backgroundColor: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                      minWidth: '140px'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.backgroundColor = '#2563eb';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.backgroundColor = '#3b82f6';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                    }}
                   >
-                    <ExternalLink size={16} />
-                    View on Explorer
-                  </a>
-                </div>
-              )}
+                    <Download size={18} />
+                    Download NFT
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

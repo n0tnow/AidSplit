@@ -22,7 +22,7 @@ const FeaturePage: React.FC<FeaturePageProps> = ({ featureId, onBack }) => {
         'Minimum/maximum donation limits',
         'Transparent donation tracking'
       ],
-      smartContracts: ['campaign-manager.clar', 'distribution-engine.clar']
+      smartContracts: ['campaign-manager-v6.clar', 'distribution-engine-v6.clar']
     },
     {
       id: 'payroll-system',
@@ -37,7 +37,7 @@ const FeaturePage: React.FC<FeaturePageProps> = ({ featureId, onBack }) => {
         'Employee management',
         'Corporate admin system'
       ],
-      smartContracts: ['campaign-manager.clar', 'hierarchy-calculator.clar', 'company-auth.clar']
+      smartContracts: ['campaign-manager-v6.clar', 'hierarchy-calculator-v6.clar', 'company-auth-v6.clar']
     },
     {
       id: 'nft-receipts',
@@ -52,7 +52,7 @@ const FeaturePage: React.FC<FeaturePageProps> = ({ featureId, onBack }) => {
         'Permanent blockchain records',
         'Personal NFT gallery'
       ],
-      smartContracts: ['nft-receipts.clar', 'nft-generator.clar']
+      smartContracts: ['nft-receipts-v6.clar', 'nft-generator-v6.clar']
     },
     {
       id: 'distribution-engine',
@@ -67,7 +67,7 @@ const FeaturePage: React.FC<FeaturePageProps> = ({ featureId, onBack }) => {
         'Secure fund transfers',
         'Real-time balance tracking'
       ],
-      smartContracts: ['distribution-engine.clar']
+      smartContracts: ['distribution-engine-v6.clar']
     },
     {
       id: 'access-control',
@@ -82,7 +82,7 @@ const FeaturePage: React.FC<FeaturePageProps> = ({ featureId, onBack }) => {
         'System-wide pause functionality',
         'Function-based restrictions'
       ],
-      smartContracts: ['access-control.clar']
+      smartContracts: ['access-control-v6.clar']
     },
     {
       id: 'company-auth',
@@ -97,7 +97,7 @@ const FeaturePage: React.FC<FeaturePageProps> = ({ featureId, onBack }) => {
         'Role-based access',
         'Corporate profile management'
       ],
-      smartContracts: ['company-auth.clar']
+      smartContracts: ['company-auth-v6.clar']
     },
     {
       id: 'donation-targeting',
@@ -112,7 +112,7 @@ const FeaturePage: React.FC<FeaturePageProps> = ({ featureId, onBack }) => {
         'Organization performance tracking',
         'Automatic reporting'
       ],
-      smartContracts: ['donation-targeting.clar']
+      smartContracts: ['donation-targeting-v6.clar']
     },
     {
       id: 'hierarchy-calculator',
@@ -127,7 +127,7 @@ const FeaturePage: React.FC<FeaturePageProps> = ({ featureId, onBack }) => {
         'Automatic salary distribution',
         'Fair payment algorithm'
       ],
-      smartContracts: ['hierarchy-calculator.clar']
+      smartContracts: ['hierarchy-calculator-v6.clar']
     }
   ];
 

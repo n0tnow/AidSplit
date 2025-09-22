@@ -1286,18 +1286,18 @@
 
 /* Success Modal Styles */
 .success-modal {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(30, 41, 59, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   max-width: 500px;
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
   position: relative;
-  color: #1f2937;
+  color: #f1f5f9;
 }
 
 .success-header {
@@ -1312,7 +1312,7 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: 50%;
   width: 32px;
@@ -1321,13 +1321,13 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #6b7280;
+  color: #94a3b8;
   transition: all 0.3s ease;
 }
 
 .close-btn:hover {
-  background: rgba(0, 0, 0, 0.2);
-  color: #374151;
+  background: rgba(255, 255, 255, 0.2);
+  color: #f1f5f9;
 }
 
 .success-content {
@@ -1336,14 +1336,14 @@
 }
 
 .success-content h2 {
-  color: #1f2937;
+  color: #f1f5f9;
   font-size: 28px;
   font-weight: 700;
   margin: 0 0 16px 0;
 }
 
 .success-content p {
-  color: #4b5563;
+  color: #cbd5e1;
   font-size: 16px;
   line-height: 1.5;
   margin: 0 0 24px 0;
@@ -1358,7 +1358,7 @@
 }
 
 .nft-receipt h3 {
-  color: #059669;
+  color: #10b981;
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 16px 0;
@@ -1368,10 +1368,10 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(16, 185, 129, 0.1);
   border-radius: 12px;
   padding: 16px;
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .nft-preview {
@@ -1394,26 +1394,27 @@
 }
 
 .nft-id {
-  color: #059669;
+  color: #10b981;
   font-weight: 600;
   font-size: 14px;
 }
 
 .nft-desc {
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 12px;
 }
 
 .blockchain-info {
   margin-top: 24px;
   padding: 20px;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 12px;
   text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .blockchain-info h4 {
-  color: #374151;
+  color: #f1f5f9;
   font-size: 16px;
   font-weight: 600;
   margin: 0 0 16px 0;
@@ -1424,7 +1425,7 @@
 }
 
 .tx-info > span {
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 14px;
   display: block;
   margin-bottom: 8px;
@@ -1434,26 +1435,27 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tx-hash code {
   font-family: monospace;
   font-size: 12px;
-  color: #374151;
+  color: #f1f5f9;
   flex: 1;
   word-break: break-all;
 }
 
 .copy-btn {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
   border-radius: 6px;
   padding: 6px;
   cursor: pointer;
-  color: #059669;
+  color: #10b981;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -1461,14 +1463,15 @@
 }
 
 .copy-btn:hover {
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.3);
+  border-color: rgba(16, 185, 129, 0.6);
 }
 
 .explorer-link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #059669;
+  color: #10b981;
   text-decoration: none;
   font-weight: 600;
   font-size: 14px;
@@ -1481,6 +1484,7 @@
 
 .explorer-link:hover {
   background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.5);
   transform: translateY(-1px);
 }
 
@@ -2345,5 +2349,403 @@
   
   .option-location {
     font-size: 10px;
+  }
+}
+
+/* Toast Notification Styles */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  max-width: 400px;
+  z-index: 9999;
+  animation: slideInRight 0.3s ease-out;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  position: relative;
+}
+
+.toast-success {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.toast-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.toast-info {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+}
+
+.toast-content span {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.toast-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Auto-hide toast after 5 seconds */
+.toast-notification {
+  animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-out 4.7s forwards;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* Toast responsive design */
+@media (max-width: 768px) {
+  .toast-notification {
+    left: 16px;
+    right: 16px;
+    max-width: none;
+    top: 16px;
+  }
+}
+
+/* Admin Section Styles */
+.admin-section {
+  width: 100%;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-tab {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.admin-tab:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.admin-tab:hover::before {
+  left: 100%;
+}
+
+.admin-tab.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
+  color: var(--primary-green);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+/* Manage Campaigns Section */
+.manage-campaigns-section {
+  width: 100%;
+}
+
+.manage-campaigns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.manage-campaign-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.manage-campaign-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.05), transparent);
+  transition: left 0.6s ease;
+}
+
+.manage-campaign-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.manage-campaign-card:hover::before {
+  left: 100%;
+}
+
+.campaign-info h3 {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.campaign-status {
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.campaign-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.campaign-stats .stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.campaign-stats .stat:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
+
+.campaign-stats .stat span:first-child {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.campaign-stats .stat span:last-child {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.campaign-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+.campaign-actions .action-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  min-width: 120px;
+  margin: 0;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.campaign-actions .action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.campaign-actions .action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.campaign-actions .action-btn:hover::before {
+  left: 100%;
+}
+
+/* Close Campaign Button */
+.campaign-actions .close-btn {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.8) 0%, rgba(217, 119, 6, 0.9) 100%);
+  color: white;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+.campaign-actions .close-btn:hover {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.9) 0%, rgba(180, 83, 9, 0.95) 100%);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  border-color: rgba(245, 158, 11, 0.6);
+}
+
+/* Reopen Campaign Button */
+.campaign-actions .reopen-btn {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.8) 0%, rgba(5, 150, 105, 0.9) 100%);
+  color: white;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+.campaign-actions .reopen-btn:hover {
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.9) 0%, rgba(4, 120, 87, 0.95) 100%);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  border-color: rgba(16, 185, 129, 0.6);
+}
+
+/* Delete Campaign Button */
+.campaign-actions .delete-btn {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.8) 0%, rgba(220, 38, 38, 0.9) 100%);
+  color: white;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+.campaign-actions .delete-btn:hover {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.9) 0%, rgba(185, 28, 28, 0.95) 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  border-color: rgba(239, 68, 68, 0.6);
+}
+
+/* Medium screens */
+@media (max-width: 1024px) {
+  .manage-campaigns-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .campaign-actions {
+    gap: 6px;
+  }
+
+  .campaign-actions .action-btn {
+    min-width: 90px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 768px) {
+  .admin-tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .manage-campaign-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .campaign-stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .campaign-actions {
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .campaign-actions .action-btn {
+    width: 100%;
+    min-width: unset;
+    padding: 12px 16px;
+    font-size: 13px;
+    flex: none;
   }
 }

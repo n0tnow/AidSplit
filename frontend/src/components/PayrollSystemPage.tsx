@@ -18,9 +18,32 @@ import {
   Shield,
   BarChart,
   Save,
-  X
+  X,
+  QrCode
 } from 'lucide-react';
+import { useWallet } from '../contexts/WalletContext';
+import { 
+  createCampaign, 
+  setupPayrollEmployees, 
+  processPayrollV4, 
+  claimPayrollFunds,
+  getCampaignInfo,
+  getExplorerUrl,
+  createDepartment,
+  addRole,
+  assignEmployee,
+  registerCompany,
+  addCompanyFunds,
+  getCompanyBudget,
+  addEmployee as addEmployeeToCompany,
+  updateEmployee as updateEmployeeInCompany,
+  removeEmployee as removeEmployeeFromCompany,
+  getCompanyByAdmin,
+  getCompanyEmployees,
+  getEmployeeByWallet
+} from '../lib/stacks';
 import './PayrollSystemPage.css';
+import QRCodeModal from './QRCodeModal';
 
 interface PayrollSystemPageProps {
   onBack: () => void;
@@ -92,7 +115,7 @@ interface PayrollCampaign {
 
 interface SuccessModal {
   isOpen: boolean;
-  type: 'payroll' | 'employee' | 'department' | 'claim';
+  type: 'payroll' | 'employee' | 'department' | 'claim' | 'role' | 'company';
   title: string;
   message: string;
   txHash?: string;
@@ -115,12 +138,12 @@ interface SalaryPayment {
 }
 
 const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
+  const { isConnected, userSession, connectWallet, userAddress } = useWallet();
   const [activeTab, setActiveTab] = useState<'overview' | 'departments' | 'employees' | 'payroll' | 'claims'>('overview');
   
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState<'admin' | 'employee' | null>(null);
-  const [, setUserAddress] = useState<string>('');
   
   // Company data
   const [company, setCompany] = useState<Company | null>(null);
@@ -128,6 +151,13 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [payrollCampaigns, setPayrollCampaigns] = useState<PayrollCampaign[]>([]);
   const [salaryPayments, setSalaryPayments] = useState<SalaryPayment[]>([]);
+  const [companyBudget, setCompanyBudget] = useState(0);
+  const [fundsToAdd, setFundsToAdd] = useState(0);
+  const [stxPrice, setStxPrice] = useState(0);
+  const [stxAmount, setStxAmount] = useState(0);
+  const [usdAmount, setUsdAmount] = useState(0);
+  const [isCompanyRegistered, setIsCompanyRegistered] = useState<boolean>(false);
+  const [isCheckingCompany, setIsCheckingCompany] = useState<boolean>(false);
   
   // UI state
   const [isLoading, setIsLoading] = useState(false);
@@ -141,261 +171,36 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
   // Forms
   const [newDepartment, setNewDepartment] = useState({ name: '', allocation: 0 });
   const [newRole, setNewRole] = useState({ deptId: '', name: '', multiplier: 100, baseSalary: 1000 });
-  // const [newEmployee, setNewEmployee] = useState({ 
-  //   address: '', 
-  //   name: '', 
-  //   deptId: '', 
-  //   roleId: '', 
-  //   multiplier: 100, 
-  //   performance: 100 
-  // });
-  // const [payrollForm, setPayrollForm] = useState({ name: '', budget: 0 });
+  const [newEmployee, setNewEmployee] = useState({ 
+    address: '', 
+    name: '', 
+    deptId: '', 
+    roleId: '', 
+    multiplier: 100, 
+    performance: 100 
+  });
+  const [payrollForm, setPayrollForm] = useState({ name: '', budget: 0 });
   
   // Dropdowns
-  // const [isDeptDropdownOpen, setIsDeptDropdownOpen] = useState(false);
-  // const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+  const [isDeptDropdownOpen, setIsDeptDropdownOpen] = useState(false);
+  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
-  // const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  
+  // QR Code Modal state
+  const [qrModal, setQrModal] = useState({
+    isOpen: false,
+    salaryAmount: 0,
+    employeeName: '',
+    campaignName: '',
+    claimUrl: ''
+  });
   
 
-  // Initialize mock data
-  useEffect(() => {
-    const mockCompany: Company = {
-      id: 1,
-      name: "TechCorp Solutions",
-      adminAddress: "SP1ADMIN...TECH123",
-      employeeCount: 25,
-      totalPayroll: 450000,
-      isVerified: true,
-      registeredAt: "2024-01-15",
-      departments: []
-    };
-
-    const mockDepartments: Department[] = [
-      {
-        id: "engineering",
-        name: "Engineering",
-        allocationPercentage: 40,
-        employeeCount: 12,
-        isActive: true,
-        roles: [
-          { id: "senior-dev", name: "Senior Developer", multiplier: 150, baseSalaryPoints: 5000, isActive: true },
-          { id: "junior-dev", name: "Junior Developer", multiplier: 100, baseSalaryPoints: 3000, isActive: true },
-          { id: "tech-lead", name: "Tech Lead", multiplier: 200, baseSalaryPoints: 7000, isActive: true }
-        ]
-      },
-      {
-        id: "marketing",
-        name: "Marketing",
-        allocationPercentage: 25,
-        employeeCount: 8,
-        isActive: true,
-        roles: [
-          { id: "marketing-manager", name: "Marketing Manager", multiplier: 140, baseSalaryPoints: 4500, isActive: true },
-          { id: "content-creator", name: "Content Creator", multiplier: 110, baseSalaryPoints: 3200, isActive: true }
-        ]
-      },
-      {
-        id: "hr",
-        name: "Human Resources",
-        allocationPercentage: 20,
-        employeeCount: 3,
-        isActive: true,
-        roles: [
-          { id: "hr-manager", name: "HR Manager", multiplier: 130, baseSalaryPoints: 4000, isActive: true },
-          { id: "hr-specialist", name: "HR Specialist", multiplier: 110, baseSalaryPoints: 3500, isActive: true }
-        ]
-      },
-      {
-        id: "finance",
-        name: "Finance",
-        allocationPercentage: 15,
-        employeeCount: 2,
-        isActive: true,
-        roles: [
-          { id: "cfo", name: "CFO", multiplier: 250, baseSalaryPoints: 8000, isActive: true },
-          { id: "accountant", name: "Accountant", multiplier: 120, baseSalaryPoints: 3800, isActive: true }
-        ]
-      }
-    ];
-
-    const mockEmployees: Employee[] = [
-      {
-        id: 1,
-        address: "SP1EMP...DEV001",
-        name: "Ahmet Yılmaz",
-        departmentId: "engineering",
-        roleId: "senior-dev",
-        individualMultiplier: 120,
-        performanceRating: 95,
-        hireDate: "2023-03-15",
-        status: 'active',
-        totalEarned: 125000,
-        lastPayroll: "2024-09-01"
-      },
-      {
-        id: 2,
-        address: "SP1EMP...DEV002",
-        name: "Fatma Kaya",
-        departmentId: "engineering",
-        roleId: "tech-lead",
-        individualMultiplier: 130,
-        performanceRating: 98,
-        hireDate: "2022-11-08",
-        status: 'active',
-        totalEarned: 180000,
-        lastPayroll: "2024-09-01"
-      },
-      {
-        id: 3,
-        address: "SP1EMP...MKT001",
-        name: "Mehmet Özkan",
-        departmentId: "marketing",
-        roleId: "marketing-manager",
-        individualMultiplier: 110,
-        performanceRating: 88,
-        hireDate: "2023-06-20",
-        status: 'active',
-        totalEarned: 95000,
-        lastPayroll: "2024-09-01"
-      },
-      {
-        id: 4,
-        address: "SP1EMP...HR001",
-        name: "Ayşe Demir",
-        departmentId: "hr",
-        roleId: "hr-manager",
-        individualMultiplier: 115,
-        performanceRating: 92,
-        hireDate: "2023-01-10",
-        status: 'active',
-        totalEarned: 87000,
-        lastPayroll: "2024-09-01"
-      },
-      {
-        id: 5,
-        address: "SP1EMP...FIN001",
-        name: "Can Mutlu",
-        departmentId: "finance",
-        roleId: "cfo",
-        individualMultiplier: 140,
-        performanceRating: 96,
-        hireDate: "2022-08-01",
-        status: 'active',
-        totalEarned: 220000,
-        lastPayroll: "2024-09-01"
-      }
-    ];
-
-    const mockPayrollCampaigns: PayrollCampaign[] = [
-      {
-        id: 1,
-        name: "September 2024 Payroll",
-        description: "Monthly salary distribution for all departments",
-        totalBudget: 45000,
-        processedAmount: 45000,
-        employeeCount: 25,
-        status: 'completed',
-        createdAt: "2024-09-01T09:00:00Z",
-        processedAt: "2024-09-01T15:30:00Z"
-      },
-      {
-        id: 2,
-        name: "October 2024 Payroll",
-        description: "Regular monthly payroll with Q4 performance bonuses",
-        totalBudget: 47000,
-        processedAmount: 0,
-        employeeCount: 25,
-        status: 'draft',
-        createdAt: "2024-10-01T09:00:00Z"
-      }
-    ];
-
-    const mockSalaryPayments: SalaryPayment[] = [
-      {
-        id: 1,
-        employeeId: 1,
-        employeeName: "Ahmet Yılmaz",
-        campaignId: 1,
-        campaignName: "September 2024 Payroll",
-        amount: 1800,
-        processedAt: "2024-09-01T15:30:00Z",
-        claimedAt: "2024-09-02T10:15:00Z",
-        txHash: "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
-        nftReceiptId: 3001,
-        status: 'claimed'
-      },
-      {
-        id: 2,
-        employeeId: 2,
-        employeeName: "Fatma Kaya",
-        campaignId: 1,
-        campaignName: "September 2024 Payroll",
-        amount: 2200,
-        processedAt: "2024-09-01T15:30:00Z",
-        claimedAt: "2024-09-02T14:22:00Z",
-        txHash: "0x2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c",
-        nftReceiptId: 3002,
-        status: 'claimed'
-      },
-      {
-        id: 3,
-        employeeId: 3,
-        employeeName: "Mehmet Özkan",
-        campaignId: 1,
-        campaignName: "September 2024 Payroll",
-        amount: 1600,
-        processedAt: "2024-09-01T15:30:00Z",
-        claimedAt: "2024-09-03T09:45:00Z",
-        txHash: "0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d",
-        nftReceiptId: 3003,
-        status: 'claimed'
-      },
-      {
-        id: 4,
-        employeeId: 4,
-        employeeName: "Ayşe Demir",
-        campaignId: 1,
-        campaignName: "September 2024 Payroll",
-        amount: 1500,
-        processedAt: "2024-09-01T15:30:00Z",
-        claimedAt: "2024-09-03T16:20:00Z",
-        txHash: "0x4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e",
-        nftReceiptId: 3004,
-        status: 'claimed'
-      },
-      {
-        id: 5,
-        employeeId: 5,
-        employeeName: "Can Mutlu",
-        campaignId: 1,
-        campaignName: "September 2024 Payroll",
-        amount: 2800,
-        processedAt: "2024-09-01T15:30:00Z",
-        claimedAt: "2024-09-04T11:30:00Z",
-        txHash: "0x5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f",
-        nftReceiptId: 3005,
-        status: 'claimed'
-      }
-    ];
-
-    setCompany(mockCompany);
-    setDepartments(mockDepartments);
-    setEmployees(mockEmployees);
-    setPayrollCampaigns(mockPayrollCampaigns);
-    setSalaryPayments(mockSalaryPayments);
-
-    // Auto-authenticate as admin for demo
-    setTimeout(() => {
-      setIsAuthenticated(true);
-      setUserRole('admin');
-      setUserAddress('SP1ADMIN...TECH123');
-    }, 1000);
-  }, []);
 
   // Utility functions
   const getExplorerLink = (txHash: string): string => {
-    return `https://explorer.hiro.so/txid/${txHash}?chain=mainnet`;
+    return `https://explorer.hiro.so/txid/${txHash}?chain=testnet`;
   };
 
   const copyToClipboard = (text: string) => {
@@ -403,14 +208,36 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
     alert('Copied to clipboard!');
   };
 
-  // Authentication
-  const connectWallet = async () => {
+  // QR Code generation for salary claims
+  const generateSalaryQR = (employee: Employee, campaignId: number, salaryAmount: number) => {
+    const baseUrl = window.location.origin;
+    const claimUrl = `${baseUrl}/claim-salary?employee=${employee.address}&campaign=${campaignId}&amount=${salaryAmount}`;
+    
+    setQrModal({
+      isOpen: true,
+      salaryAmount,
+      employeeName: employee.name,
+      campaignName: `Campaign #${campaignId}`,
+      claimUrl
+    });
+  };
+
+  const closeQrModal = () => {
+    setQrModal({
+      isOpen: false,
+      salaryAmount: 0,
+      employeeName: '',
+      campaignName: '',
+      claimUrl: ''
+    });
+  };
+
+  // Authentication with real wallet
+  const handleWalletConnection = async () => {
     setIsLoading(true);
     try {
-      // Mock authentication
-      setIsAuthenticated(true);
-      setUserRole('admin'); // or 'employee'
-      setUserAddress('SP1ADMIN...TECH123');
+      await connectWallet();
+      // Role is now determined in the useEffect above
     } catch (error) {
       console.error('Authentication failed:', error);
     } finally {
@@ -418,13 +245,305 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
     }
   };
 
-  // Department management
-  const createDepartment = async () => {
+  // Effect to handle wallet connection state and admin role
+  useEffect(() => {
+    if (isConnected && userAddress) {
+      setIsAuthenticated(true);
+      
+      // Check if user is admin based on wallet address
+      const adminAddresses = [
+        'STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4', // Main admin
+        'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM', // Test admin 1
+        'ST2CY5V9NHDPDBXMWGQ9J7H6NCNF0N0SSJQTXQP3W', // Test admin 2
+        'ST1ADMIN...TEST', // Test admin 3
+        'ST2ADMIN...TEST', // Test admin 4
+      ];
+      
+      console.log('=== 🔐 ROLE CHECK DEBUG ===');
+      console.log('👤 User Address:', userAddress);
+      console.log('📊 User Address Type:', typeof userAddress);
+      console.log('📏 User Address Length:', userAddress?.length);
+      console.log('💰 Admin Addresses:', adminAddresses);
+      console.log('✅ Is Admin Check:', adminAddresses.includes(userAddress));
+      console.log('🎯 Exact Match:', adminAddresses.some(addr => addr === userAddress));
+      console.log('========================');
+      
+      if (adminAddresses.includes(userAddress)) {
+        setUserRole('admin');
+        console.log('✅ User role set to ADMIN');
+      } else {
+        setUserRole('employee');
+        console.log('❌ User role set to EMPLOYEE');
+      }
+    } else {
+      setIsAuthenticated(false);
+      setUserRole(null);
+    }
+  }, [isConnected, userAddress]);
+
+  // Load company data when user is admin
+  useEffect(() => {
+    if (userRole === 'admin' && userAddress) {
+      loadCompanyData();
+    }
+  }, [userRole, userAddress]);
+
+  // Load STX price
+  useEffect(() => {
+    loadStxPrice();
+  }, []);
+
+  // Load STX price from API
+  const loadStxPrice = async () => {
+    try {
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=stacks&vs_currencies=usd');
+      const data = await response.json();
+      if (data.stacks && data.stacks.usd) {
+        setStxPrice(data.stacks.usd);
+      }
+    } catch (error) {
+      console.error('Error loading STX price:', error);
+      // Fallback price
+      setStxPrice(0.5);
+    }
+  };
+
+  // Calculate USD amount from STX
+  const calculateUsdAmount = (stx: number) => {
+    return stx * stxPrice;
+  };
+
+  // Calculate STX amount from USD
+  const calculateStxAmount = (usd: number) => {
+    return stxPrice > 0 ? usd / stxPrice : 0;
+  };
+
+  // Load company data from blockchain with improved error handling
+  const loadCompanyData = async () => {
+    if (!userAddress) {
+      console.log('❌ No user address available for company data loading');
+      return;
+    }
+
+    console.log('🔄 Loading company data for:', userAddress);
+    setIsCheckingCompany(true);
+
+    try {
+      // Get company data from blockchain
+      const companyData = await getCompanyByAdmin(userAddress);
+
+      if (companyData) {
+        console.log('✅ Company data loaded:', companyData);
+
+        const company: Company = {
+          id: companyData.id,
+          name: companyData.name,
+          adminAddress: userAddress,
+          employeeCount: companyData.employee_count || 0,
+          totalPayroll: companyData.total_budget || 0,
+          isVerified: companyData.active,
+          registeredAt: new Date(companyData.created_at * 1000).toISOString().split('T')[0],
+          departments: departments
+        };
+
+        setCompany(company);
+        setCompanyBudget(companyData.total_budget || 0);
+        setIsCompanyRegistered(true);
+
+        console.log('🏢 Company state updated:', company);
+
+        // Load employees from blockchain
+        try {
+          const employeesData = await getCompanyEmployees(companyData.id);
+          if (employeesData && Array.isArray(employeesData)) {
+            const blockchainEmployees: Employee[] = employeesData.map((emp: any, index: number) => ({
+              id: index + 1,
+              name: emp.name,
+              address: emp.wallet_address,
+              departmentId: emp.department,
+              roleId: emp.position, // Fixed: should be roleId not role
+              individualMultiplier: 100, // Default multiplier
+              performanceRating: 85, // Default performance rating
+              status: emp.active ? 'active' : 'inactive',
+              hireDate: new Date(emp.added_at * 1000).toISOString().split('T')[0],
+              totalEarned: 0, // Default total earned
+              lastPayroll: '2024-01-01' // Default last payment
+            }));
+
+            console.log('👥 Employees loaded:', blockchainEmployees);
+            setEmployees(blockchainEmployees);
+          } else {
+            console.log('ℹ️ No employees found or empty array');
+            setEmployees([]);
+          }
+        } catch (employeeError) {
+          console.error('⚠️ Error loading employees:', employeeError);
+          setEmployees([]); // Set empty array on error
+        }
+
+      } else {
+        console.log('ℹ️ No company found for admin');
+        setIsCompanyRegistered(false);
+        setCompany(null);
+        setEmployees([]);
+      }
+    } catch (error) {
+      console.error('💥 Error loading company data:', error);
+      setIsCompanyRegistered(false);
+      setCompany(null);
+      setEmployees([]);
+    } finally {
+      setIsCheckingCompany(false);
+      console.log('🏁 Company loading process completed');
+    }
+  };
+
+  // Register company with better user feedback
+  const handleRegisterCompany = async () => {
+    if (isCompanyRegistered) {
+      alert('You already have a registered company!');
+      return;
+    }
+
+    console.log('🏢 Starting company registration...');
+    setIsLoading(true);
+
+    try {
+      await registerCompany(
+        "AidSplit Company",
+        "A blockchain-based payroll management company",
+        0, // Initial budget
+        (data) => {
+          console.log('✅ Company registered on blockchain:', data);
+
+          setSuccessModal({
+            isOpen: true,
+            type: 'company',
+            title: 'Company Registered!',
+            message: `Your company has been successfully registered on the blockchain. You can now add funds and manage employees.`,
+            txHash: data.txId || '0x' + Math.random().toString(16).substring(2, 66)
+          });
+
+          // Wait longer for blockchain state to be updated
+          setTimeout(() => {
+            console.log('🔄 Reloading company data after registration...');
+            loadCompanyData();
+          }, 5000); // Wait 5 seconds for blockchain confirmation
+        },
+        userAddress || undefined // Pass admin address to registerCompany
+      );
+    } catch (error) {
+      console.error('💥 Failed to register company:', error);
+      alert('Failed to register company. Please check the console for details.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Add funds to company budget
+  const handleAddFunds = async () => {
+    if (fundsToAdd <= 0) return;
+    
+    setIsLoading(true);
+    try {
+      await addCompanyFunds(
+        fundsToAdd,
+        (data) => {
+          console.log('Funds added to company:', data);
+          setCompanyBudget(prev => prev + fundsToAdd);
+          setFundsToAdd(0);
+          
+          setSuccessModal({
+            isOpen: true,
+            type: 'company',
+            title: 'Funds Added!',
+            message: `Successfully added ${fundsToAdd} STX to company budget.`,
+            amount: fundsToAdd,
+            txHash: data.txId || '0x' + Math.random().toString(16).substring(2, 66)
+          });
+        }
+      );
+    } catch (error) {
+      console.error('Failed to add funds:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Role management with real contracts
+  const handleAddRole = async () => {
+    if (!newRole.name || !selectedDepartment) return;
+    
+    setIsLoading(true);
+    try {
+      // Add role to department on blockchain
+      await addRole(
+        selectedDepartment.id,
+        newRole.name.toLowerCase().replace(/\s+/g, '-'),
+        newRole.multiplier,
+        newRole.baseSalary,
+        (data) => {
+          console.log('Role added on blockchain:', data);
+          
+          // Add to local state after blockchain success
+          const updatedRole: Role = {
+            id: newRole.name.toLowerCase().replace(/\s+/g, '-'),
+            name: newRole.name,
+            multiplier: newRole.multiplier,
+            baseSalaryPoints: newRole.baseSalary,
+            isActive: true
+          };
+          
+          // Update the department with the new role
+          setDepartments(prev => 
+            prev.map(dept => 
+              dept.id === selectedDepartment.id 
+                ? { ...dept, roles: [...dept.roles, updatedRole] }
+                : dept
+            )
+          );
+          
+          // Reset form
+          setNewRole({ deptId: '', name: '', multiplier: 100, baseSalary: 1000 });
+          setSelectedDepartment(null);
+          
+          setSuccessModal({
+            isOpen: true,
+            type: 'role',
+            title: 'Role Added!',
+            message: `${updatedRole.name} role has been successfully added to ${selectedDepartment.name} department.`,
+            txHash: data.txId || '0x' + Math.random().toString(16).substring(2, 66)
+          });
+          
+          // Close modal
+          const modal = document.getElementById('create-role-modal');
+          if (modal) modal.style.display = 'none';
+        }
+      );
+    } catch (error) {
+      console.error('Failed to add role:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Department management with real contracts
+  const handleCreateDepartment = async () => {
     if (!newDepartment.name || newDepartment.allocation <= 0) return;
     
     setIsLoading(true);
     try {
       const deptId = newDepartment.name.toLowerCase().replace(/\s+/g, '-');
+      
+      // Create department on blockchain first
+      await createDepartment(
+        deptId,
+        newDepartment.name,
+        newDepartment.allocation * 100, // Convert percentage to basis points (50% = 5000)
+        (data) => {
+          console.log('Department created on blockchain:', data);
+          
+          // Add to local state after blockchain success
       const newDept: Department = {
         id: deptId,
         name: newDepartment.name,
@@ -442,8 +561,10 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
         type: 'department',
         title: 'Department Created!',
         message: `${newDept.name} department has been successfully created with ${newDept.allocationPercentage}% allocation.`,
-        txHash: '0x' + Math.random().toString(16).substring(2, 66)
+            txHash: data.txId || '0x' + Math.random().toString(16).substring(2, 66)
       });
+        }
+      );
     } catch (error) {
       console.error('Failed to create department:', error);
     } finally {
@@ -451,13 +572,82 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
     }
   };
 
-  // Employee management
-  /*
+  // Payroll campaign creation with real contracts
+  const handleCreatePayrollCampaign = async () => {
+    if (!payrollForm.name || payrollForm.budget <= 0) return;
+    
+    setIsLoading(true);
+    try {
+      // Create payroll campaign on blockchain
+      await createCampaign(
+        payrollForm.name,
+        `Payroll campaign for ${payrollForm.name}`,
+        'payroll', // Campaign type
+        payrollForm.budget,
+        720, // 30 days duration in blocks
+        0, // min amount
+        payrollForm.budget, // max amount
+        (data) => {
+          console.log('Payroll campaign created on blockchain:', data);
+          
+          // Add to local state after blockchain success
+          const newCampaign: PayrollCampaign = {
+            id: payrollCampaigns.length + 1,
+            name: payrollForm.name,
+            description: `Monthly payroll for ${employees.length} employees`,
+            totalBudget: payrollForm.budget,
+            processedAmount: 0,
+            employeeCount: employees.filter(emp => emp.status === 'active').length,
+            status: 'draft',
+            createdAt: new Date().toISOString()
+          };
+          
+          setPayrollCampaigns([...payrollCampaigns, newCampaign]);
+          setPayrollForm({ name: '', budget: 0 });
+          
+          setSuccessModal({
+            isOpen: true,
+            type: 'payroll',
+            title: 'Payroll Campaign Created!',
+            message: `${newCampaign.name} campaign has been successfully created with ${newCampaign.totalBudget} STX budget.`,
+            amount: newCampaign.totalBudget,
+            txHash: data.txId || '0x' + Math.random().toString(16).substring(2, 66)
+          });
+          
+          // Close modal
+          const modal = document.getElementById('create-payroll-modal');
+          if (modal) modal.style.display = 'none';
+        }
+      );
+    } catch (error) {
+      console.error('Failed to create payroll campaign:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Employee management with real contracts
   const addEmployee = async () => {
+    if (!userAddress) {
+      alert('Please connect your wallet first');
+      return;
+    }
+    
     if (!newEmployee.address || !newEmployee.name || !newEmployee.deptId || !newEmployee.roleId) return;
     
     setIsLoading(true);
     try {
+      // Add employee to company on blockchain
+      await addEmployeeToCompany(
+        newEmployee.address,
+        newEmployee.name,
+        newEmployee.deptId,
+        newEmployee.roleId,
+        newEmployee.multiplier * 100, // Convert to salary
+        (data) => {
+          console.log('Employee added to company on blockchain:', data);
+          
+          // Add to local state after blockchain success
       const employee: Employee = {
         id: employees.length + 1,
         address: newEmployee.address,
@@ -479,24 +669,37 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
         isOpen: true,
         type: 'employee',
         title: 'Employee Added!',
-        message: `${employee.name} has been successfully added to the payroll system.`,
-        txHash: '0x' + Math.random().toString(16).substring(2, 66),
+            message: `${employee.name} has been successfully added to the company.`,
+            txHash: data.txId || '0x' + Math.random().toString(16).substring(2, 66),
         nftReceiptId: 2000 + employee.id
       });
+        }
+      );
     } catch (error) {
       console.error('Failed to add employee:', error);
     } finally {
       setIsLoading(false);
     }
   };
-  */
 
-  // Payroll processing
-  /*
+  // Payroll processing with real contracts
   const processPayroll = async (campaign: PayrollCampaign) => {
     setIsLoading(true);
     try {
-      // Mock payroll processing
+      // Get employee addresses for this campaign
+      const employeeAddresses = employees
+        .filter(emp => emp.status === 'active')
+        .map(emp => emp.address);
+
+      // Process payroll on blockchain
+      await processPayrollV4(
+        campaign.id,
+        campaign.totalBudget,
+        employeeAddresses,
+        (data) => {
+          console.log('Payroll processed on blockchain:', data);
+          
+          // Update local state after blockchain success
       const updatedCampaign = { 
         ...campaign, 
         status: 'completed' as const, 
@@ -514,45 +717,51 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
         title: 'Payroll Processed!',
         message: `Successfully processed payroll for ${campaign.employeeCount} employees.`,
         amount: campaign.totalBudget,
-        txHash: '0x' + Math.random().toString(16).substring(2, 66)
+            txHash: data.txId || '0x' + Math.random().toString(16).substring(2, 66)
       });
+        }
+      );
     } catch (error) {
       console.error('Failed to process payroll:', error);
     } finally {
       setIsLoading(false);
     }
   };
-  */
 
-  // Salary claim (for employees)
-  /*
+  // Salary claim (for employees) with real contracts
   const claimSalary = async () => {
     if (userRole !== 'employee') return;
     
     setIsLoading(true);
     try {
-      const pendingAmount = 3500; // Mock pending salary
+      // Use a mock campaign ID for now - in real implementation, this would be determined dynamically
+      const campaignId = 1;
+      
+      await claimPayrollFunds(
+        campaignId,
+        (data) => {
+          console.log('Salary claimed on blockchain:', data);
       
       setSuccessModal({
         isOpen: true,
         type: 'claim',
         title: 'Salary Claimed!',
         message: `Successfully claimed your salary payment.`,
-        amount: pendingAmount,
-        txHash: '0x' + Math.random().toString(16).substring(2, 66),
+            amount: 3500, // This would come from blockchain data
+            txHash: data.txId || '0x' + Math.random().toString(16).substring(2, 66),
         nftReceiptId: 3000 + Math.floor(Math.random() * 1000)
       });
+        }
+      );
     } catch (error) {
       console.error('Failed to claim salary:', error);
     } finally {
       setIsLoading(false);
     }
   };
-  */
 
-  // Calculate employee salary
-  /*
-  const calculateSalary = (employee: Employee): SalaryCalculation => {
+  // Calculate employee salary - local calculation matching blockchain logic
+  const calculateSalary = (employee: Employee) => {
     const dept = departments.find(d => d.id === employee.departmentId);
     const role = dept?.roles.find(r => r.id === employee.roleId);
     
@@ -565,11 +774,12 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
       calculatedSalary: 0
     };
     
+    // Match the blockchain calculation logic from hierarchy-calculator-v6.clar
     const deptBaseShares = dept.allocationPercentage * 100;
     const roleMultipliedShares = (deptBaseShares * role.multiplier) / 100;
     const performanceBonus = (roleMultipliedShares * employee.performanceRating) / 100;
     const individualAdjusted = (roleMultipliedShares * employee.individualMultiplier) / 100;
-    const finalShares = individualAdjusted + (performanceBonus - roleMultipliedShares);
+    const finalShares = individualAdjusted + performanceBonus;
     
     return {
       employeeId: employee.id,
@@ -580,7 +790,6 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
       calculatedSalary: (finalShares * role.baseSalaryPoints) / 10000
     };
   };
-  */
 
   const closeModal = () => {
     setSuccessModal({ isOpen: false, type: 'payroll', title: '', message: '' });
@@ -634,7 +843,7 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
             
             <button 
               className="auth-btn"
-              onClick={connectWallet}
+              onClick={handleWalletConnection}
               disabled={isLoading}
             >
               <Wallet size={20} />
@@ -814,6 +1023,183 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
                 </div>
               </div>
             </div>
+
+            {/* Company Management Section - Only for Admins */}
+            {userRole === 'admin' && (
+              <div className="company-management-section">
+                <div className="management-card simple-glass-card">
+                  <div className="card-header">
+                    <Building size={32} color="#10b981" />
+                    <h3>Company Management</h3>
+                  </div>
+                  
+                  <div className="management-content">
+                    <div className="budget-section">
+                      <div className="budget-info">
+                        <h4>Company Status</h4>
+                        <div className="company-status">
+                          {isCheckingCompany ? (
+                            <div className="status-loading">
+                              <div className="loading-spinner"></div>
+                              <span>Checking company status...</span>
+                            </div>
+                          ) : isCompanyRegistered && company ? (
+                            <div className="status-verified">
+                              <CheckCircle size={20} color="#10b981" />
+                              <div className="company-info">
+                                <span className="company-name">✅ {company.name}</span>
+                                <span className="company-details">
+                                  ID: {company.id} | Employees: {company.employeeCount} | Budget: {company.totalPayroll.toLocaleString()} STX
+                                </span>
+                                <span className="company-registered">
+                                  Registered: {company.registeredAt}
+                                </span>
+                              </div>
+                              <button
+                                className="refresh-company-btn"
+                                onClick={loadCompanyData}
+                                disabled={isLoading}
+                                title="Refresh company data from blockchain"
+                              >
+                                🔄 Refresh
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="status-unverified">
+                              <X size={20} color="#ef4444" />
+                              <div className="unregistered-info">
+                                <span className="no-company-text">❌ No Company Registered</span>
+                                <span className="registration-note">
+                                  Register your company to start managing payroll
+                                </span>
+                              </div>
+                              <button
+                                className="register-company-btn"
+                                onClick={handleRegisterCompany}
+                                disabled={isLoading}
+                              >
+                                {isLoading ? '🔄 Registering...' : '🏢 Register Company'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <div className="budget-amount">
+                          <span className="budget-value">
+                            💰 {companyBudget.toLocaleString()} STX
+                          </span>
+                          <span className="budget-label">Available Company Funds</span>
+                          {company && (
+                            <span className="budget-note">
+                              Total Budget: {company.totalPayroll.toLocaleString()} STX
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="add-funds-section">
+                        <h4>Add Funds to Company</h4>
+                        <div className="funds-input-group">
+                          <input
+                            type="number"
+                            placeholder="Amount in STX"
+                            value={fundsToAdd}
+                            onChange={(e) => setFundsToAdd(Number(e.target.value))}
+                            className="funds-input"
+                          />
+                          <button
+                            className="add-funds-btn"
+                            onClick={handleAddFunds}
+                            disabled={fundsToAdd <= 0 || isLoading || !isCompanyRegistered}
+                          >
+                            {!isCompanyRegistered ? 'Register Company First' : isLoading ? 'Adding...' : 'Add Funds'}
+                          </button>
+                        </div>
+                        <p className="funds-note">
+                          Funds will be added to the company budget for payroll distribution.
+                        </p>
+                      </div>
+
+                      {/* STX Calculator */}
+                      <div className="stx-calculator-section">
+                        <h4>STX Calculator</h4>
+                        <div className="calculator-container">
+                          <div className="price-display">
+                            <span className="price-label">Current STX Price:</span>
+                            <span className="price-value">${stxPrice.toFixed(4)}</span>
+                          </div>
+                          
+                          <div className="calculator-inputs">
+                            <div className="input-group">
+                              <label>STX Amount</label>
+                              <input
+                                type="number"
+                                placeholder="Enter STX amount"
+                                value={stxAmount}
+                                onChange={(e) => {
+                                  const stx = Number(e.target.value);
+                                  setStxAmount(stx);
+                                  setUsdAmount(calculateUsdAmount(stx));
+                                }}
+                                className="calculator-input"
+                              />
+                              <span className="input-suffix">STX</span>
+                            </div>
+                            
+                            <div className="input-group">
+                              <label>USD Amount</label>
+                              <input
+                                type="number"
+                                placeholder="Enter USD amount"
+                                value={usdAmount}
+                                onChange={(e) => {
+                                  const usd = Number(e.target.value);
+                                  setUsdAmount(usd);
+                                  setStxAmount(calculateStxAmount(usd));
+                                }}
+                                className="calculator-input"
+                              />
+                              <span className="input-suffix">USD</span>
+                            </div>
+                          </div>
+                          
+                          <div className="calculator-result">
+                            <div className="result-item">
+                              <span className="result-label">STX Value:</span>
+                              <span className="result-value">{stxAmount.toFixed(4)} STX</span>
+                            </div>
+                            <div className="result-item">
+                              <span className="result-label">USD Value:</span>
+                              <span className="result-value">${usdAmount.toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="company-stats">
+                      <div className="stat-item">
+                        <span className="stat-label">Total Employees</span>
+                        <span className="stat-value">{employees.length}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-label">Active Departments</span>
+                        <span className="stat-value">{departments.length}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-label">Payroll Campaigns</span>
+                        <span className="stat-value">{payrollCampaigns.length}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-label">Total Distributed</span>
+                        <span className="stat-value">
+                          {payrollCampaigns.reduce((sum, campaign) => sum + campaign.processedAmount, 0).toLocaleString()} STX
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Employee Performance Chart */}
             <div className="performance-chart-card simple-glass-card">
@@ -1043,7 +1429,7 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
                     </button>
                     <button 
                       className="primary-btn"
-                      onClick={createDepartment}
+                      onClick={handleCreateDepartment}
                       disabled={!newDepartment.name || newDepartment.allocation <= 0}
                     >
                       <Save size={20} />
@@ -1110,11 +1496,7 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
                     </button>
                     <button 
                       className="primary-btn"
-                      onClick={() => {
-                        // Add role logic here
-                        const modal = document.getElementById('create-role-modal');
-                        if (modal) modal.style.display = 'none';
-                      }}
+                      onClick={handleAddRole}
                       disabled={!newRole.name || !selectedDepartment}
                     >
                       <Save size={20} />
@@ -1374,10 +1756,30 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
                     
                     <div className="campaign-actions">
                       {campaign.status === 'draft' && (
-                        <button className="primary-btn">
+                        <>
+                          <button 
+                            className="primary-btn"
+                            onClick={() => processPayroll(campaign)}
+                            disabled={isLoading}
+                          >
                           <TrendingUp size={16} />
                           Process Payroll
                         </button>
+                          <button 
+                            className="secondary-btn"
+                            onClick={() => {
+                              // Generate QR codes for all employees in this campaign
+                              employees.forEach((emp, index) => {
+                                const salary = calculateSalary(emp).calculatedSalary;
+                                setTimeout(() => generateSalaryQR(emp, campaign.id, salary), index * 100);
+                              });
+                            }}
+                            style={{ marginLeft: '8px' }}
+                          >
+                            <QrCode size={16} />
+                            Generate QR
+                          </button>
+                        </>
                       )}
                       {campaign.status === 'processing' && (
                         <button className="secondary-btn" disabled>
@@ -1386,10 +1788,26 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
                         </button>
                       )}
                       {campaign.status === 'completed' && (
+                        <>
                         <button className="success-btn">
                           <CheckCircle size={16} />
                           Completed
                         </button>
+                          <button 
+                            className="secondary-btn"
+                            onClick={() => {
+                              // Generate QR codes for completed payroll
+                              employees.forEach((emp, index) => {
+                                const salary = calculateSalary(emp).calculatedSalary;
+                                setTimeout(() => generateSalaryQR(emp, campaign.id, salary), index * 100);
+                              });
+                            }}
+                            style={{ marginLeft: '8px' }}
+                          >
+                            <QrCode size={16} />
+                            View QR
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -1481,7 +1899,11 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
                     >
                       Cancel
                     </button>
-                    <button className="primary-btn">
+                    <button 
+                      className="primary-btn"
+                      onClick={handleCreatePayrollCampaign}
+                      disabled={!payrollForm.name || payrollForm.budget <= 0}
+                    >
                       <Save size={20} />
                       Create Campaign
                     </button>
@@ -1643,6 +2065,16 @@ const PayrollSystemPage: React.FC<PayrollSystemPageProps> = ({ onBack }) => {
           </div>
         )}
       </div>
+
+      {/* QR Code Modal */}
+      <QRCodeModal
+        isOpen={qrModal.isOpen}
+        onClose={closeQrModal}
+        salaryAmount={qrModal.salaryAmount}
+        employeeName={qrModal.employeeName}
+        campaignName={qrModal.campaignName}
+        claimUrl={qrModal.claimUrl}
+      />
     </div>
   );
 };

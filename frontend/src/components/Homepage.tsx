@@ -13,7 +13,8 @@ import {
   Key, 
   Target, 
   BarChart, 
-  Settings 
+  Settings,
+  Terminal 
 } from 'lucide-react';
 
 interface HomepageProps {
@@ -36,7 +37,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
         'Minimum/maximum donation limits',
         'Transparent donation tracking'
       ],
-      smartContracts: ['campaign-manager.clar', 'distribution-engine.clar']
+      smartContracts: ['campaign-manager-v6.clar', 'distribution-engine-v6.clar']
     },
     {
       id: 'payroll-system',
@@ -51,7 +52,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
         'Employee management',
         'Corporate admin system'
       ],
-      smartContracts: ['campaign-manager.clar', 'hierarchy-calculator.clar', 'company-auth.clar']
+      smartContracts: ['campaign-manager-v6.clar', 'hierarchy-calculator-v6.clar', 'company-auth-v6.clar']
     },
     {
       id: 'nft-receipts',
@@ -66,7 +67,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
         'Permanent blockchain records',
         'Personal NFT gallery'
       ],
-      smartContracts: ['nft-receipts.clar', 'nft-generator.clar']
+      smartContracts: ['nft-receipts-v6.clar', 'nft-generator-v6.clar']
     },
     {
       id: 'distribution-engine',
@@ -81,7 +82,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
         'Secure fund transfers',
         'Real-time balance tracking'
       ],
-      smartContracts: ['distribution-engine.clar']
+      smartContracts: ['distribution-engine-v6.clar']
     },
     {
       id: 'access-control',
@@ -96,7 +97,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
         'System-wide pause functionality',
         'Function-based restrictions'
       ],
-      smartContracts: ['access-control.clar']
+      smartContracts: ['access-control-v6.clar']
     },
     {
       id: 'company-auth',
@@ -111,7 +112,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
         'Role-based access',
         'Corporate profile management'
       ],
-      smartContracts: ['company-auth.clar']
+      smartContracts: ['company-auth-v6.clar']
     },
     {
       id: 'donation-targeting',
@@ -126,7 +127,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
         'Organization performance tracking',
         'Automatic reporting'
       ],
-      smartContracts: ['donation-targeting.clar']
+      smartContracts: ['donation-targeting-v6.clar']
     },
     {
       id: 'hierarchy-calculator',
@@ -141,7 +142,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
         'Automatic salary distribution',
         'Fair payment algorithm'
       ],
-      smartContracts: ['hierarchy-calculator.clar']
+      smartContracts: ['hierarchy-calculator-v6.clar']
     }
   ];
 
@@ -242,32 +243,32 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
           <div className="arch-card core">
             <h3>🎯 Core Controls</h3>
             <div className="arch-contracts">
-              <span>campaign-manager.clar</span>
-              <span>access-control.clar</span>
+              <span>campaign-manager-v6.clar</span>
+              <span>access-control-v6.clar</span>
             </div>
           </div>
           
           <div className="arch-card distribution">
             <h3>💰 Distribution System</h3>
             <div className="arch-contracts">
-              <span>distribution-engine.clar</span>
-              <span>hierarchy-calculator.clar</span>
+              <span>distribution-engine-v6.clar</span>
+              <span>hierarchy-calculator-v6.clar</span>
             </div>
           </div>
           
           <div className="arch-card auth">
             <h3>🔐 Authentication</h3>
             <div className="arch-contracts">
-              <span>company-auth.clar</span>
-              <span>donation-targeting.clar</span>
+              <span>company-auth-v6.clar</span>
+              <span>donation-targeting-v6.clar</span>
             </div>
           </div>
           
           <div className="arch-card nft">
             <h3>🎨 NFT System</h3>
             <div className="arch-contracts">
-              <span>nft-receipts.clar</span>
-              <span>nft-generator.clar</span>
+              <span>nft-receipts-v6.clar</span>
+              <span>nft-generator-v6.clar</span>
             </div>
           </div>
         </div>
@@ -364,6 +365,33 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
           
           <div 
             className="quick-access-card"
+            onClick={() => onNavigate('fundraising')}
+          >
+            <div className="card-header">
+              <div className="card-icon">
+                <CircleDollarSign size={24} />
+              </div>
+              <div className="card-title-group">
+                <h3 className="card-title">Fundraising Campaign</h3>
+                <p className="card-subtitle">STX & sBTC Donations</p>
+              </div>
+            </div>
+            <div className="card-content">
+              <p className="card-description">
+                Simple fundraising campaign accepting both STX and sBTC donations with real-time tracking
+              </p>
+              <div className="card-features">
+                <ul className="card-features-list">
+                  <li className="card-feature-item">Multi-Currency</li>
+                  <li className="card-feature-item">Real-time Stats</li>
+                  <li className="card-feature-item">Transparent</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div 
+            className="quick-access-card"
             onClick={() => onNavigate('access-control')}
           >
             <div className="card-header">
@@ -384,6 +412,34 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
                   <li className="card-feature-item">Role Management</li>
                   <li className="card-feature-item">Access Control</li>
                   <li className="card-feature-item">System Config</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div 
+            className="quick-access-card"
+            onClick={() => onNavigate('manual-mint')}
+            style={{ border: '1px solid #f59e0b' }}
+          >
+            <div className="card-header">
+              <div className="card-icon">
+                <Terminal size={24} />
+              </div>
+              <div className="card-title-group">
+                <h3 className="card-title">Manual NFT Mint</h3>
+                <p className="card-subtitle">Developer Tools</p>
+              </div>
+            </div>
+            <div className="card-content">
+              <p className="card-description">
+                Review pending NFT mint requests and manually process them via Stacks CLI
+              </p>
+              <div className="card-features">
+                <ul className="card-features-list">
+                  <li className="card-feature-item">Pending Requests</li>
+                  <li className="card-feature-item">CLI Commands</li>
+                  <li className="card-feature-item">IPFS Metadata</li>
                 </ul>
               </div>
             </div>

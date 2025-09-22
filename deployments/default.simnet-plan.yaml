@@ -63,43 +63,48 @@ plan:
     - id: 0
       transactions:
         - emulated-contract-publish:
-            contract-name: access-control
+            contract-name: access-control-v4
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: "contracts\\access-control.clar"
+            path: "contracts\\access-control-v3.clar"
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: company-auth
+            contract-name: company-auth-v4
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: "contracts\\company-auth.clar"
+            path: "contracts\\company-auth-v3.clar"
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: distribution-engine
+            contract-name: distribution-engine-v4
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: "contracts\\distribution-engine.clar"
+            path: "contracts\\distribution-engine-v3.clar"
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: donation-targeting
+            contract-name: donation-targeting-v4
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: "contracts\\donation-targeting.clar"
+            path: "contracts\\donation-targeting-v3.clar"
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: hierarchy-calculator
+            contract-name: hierarchy-calculator-v4
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: "contracts\\hierarchy-calculator.clar"
+            path: "contracts\\hierarchy-calculator-v3.clar"
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: nft-receipts
+            contract-name: nft-receipts-v4
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: "contracts\\nft-receipts.clar"
+            path: "contracts\\nft-receipts-v3.clar"
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: campaign-manager
+            contract-name: campaign-manager-v4
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: "contracts\\campaign-manager.clar"
+            path: "contracts\\campaign-manager-v3.clar"
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: nft-generator
+            contract-name: fundraising-campaign
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: "contracts\\nft-generator.clar"
+            path: "contracts\\fundraising-campaign.clar"
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: nft-generator-v4
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: "contracts\\nft-generator-v3.clar"
             clarity-version: 2
       epoch: "2.4"
