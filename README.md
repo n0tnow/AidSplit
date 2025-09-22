@@ -66,32 +66,34 @@ To create a transparent, efficient, and trustworthy ecosystem for disaster relie
 ## 📸 Screenshots
 
 ### 🏠 Homepage
-> *Screenshot placeholder: Main landing page showing platform overview*
-<!-- Add homepage screenshot here -->
+> *Main landing page showing platform overview*
+<img width="1897" height="941" alt="image" src="https://github.com/user-attachments/assets/c2da3cec-7b6c-46df-86f2-a8af45900ce6" />
+
 
 ### 🆘 Disaster Relief Campaigns
-> *Screenshot placeholder: Campaign listing page with active relief campaigns*
-<!-- Add campaigns page screenshot here -->
+> *Campaign listing page with active relief campaigns*
+<img width="1149" height="487" alt="image" src="https://github.com/user-attachments/assets/385ea064-a14d-4298-a76c-61d8be44c6f0" />
+
 
 ### 💳 Donation Process
 > *Screenshot placeholder: Step-by-step donation flow*
-<!-- Add donation process screenshot here -->
+<img width="1140" height="819" alt="image" src="https://github.com/user-attachments/assets/a6b4b005-7e27-4888-b3d5-124ace39cb20" />
+<img width="1262" height="856" alt="image" src="https://github.com/user-attachments/assets/569a4e75-d90b-444b-8296-7d4f7cb1b797" />
+<img width="574" height="788" alt="image" src="https://github.com/user-attachments/assets/c8fbbdb3-f3d3-4ea0-a583-517a2d38210a" />
+<img width="550" height="646" alt="image" src="https://github.com/user-attachments/assets/bc5266bc-ca9b-40fe-921c-fe46a250a497" />
+<img width="1409" height="659" alt="image" src="https://github.com/user-attachments/assets/2cfb46ea-1a05-42df-8e65-5c20c6efab73" />
+<img width="690" height="844" alt="image" src="https://github.com/user-attachments/assets/5c1e4a40-7b6a-444a-a2e2-200a81212a00" />
+
+
 
 ### 🎫 NFT Receipt Generation
 > *Screenshot placeholder: NFT receipt creation and display*
-<!-- Add NFT receipt screenshot here -->
+<img width="1165" height="821" alt="image" src="https://github.com/user-attachments/assets/e4d7668d-41c6-4e20-99e7-3401d83a41a7" />
+<img width="1013" height="885" alt="image" src="https://github.com/user-attachments/assets/47e688e5-60c6-4126-9542-17b4ea86e87f" />
 
 ### 🏢 Company Management Dashboard
 > *Screenshot placeholder: Admin dashboard for company management*
-<!-- Add company management screenshot here -->
-
-### 📊 Analytics Dashboard
-> *Screenshot placeholder: Real-time analytics and reporting*
-<!-- Add analytics dashboard screenshot here -->
-
-### 📱 Mobile Experience
-> *Screenshot placeholder: Mobile-responsive interface*
-<!-- Add mobile screenshot here -->
+<img width="1892" height="925" alt="image" src="https://github.com/user-attachments/assets/506a730b-22c4-4939-acc7-f8e18eb28c36" />
 
 ## 🛠️ Technology Stack
 
