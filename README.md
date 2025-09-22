@@ -1,7 +1,8 @@
 # 🤝 AidSplit - Blockchain-Based Disaster Relief Platform
 
 <p align="center">
-  <img src="https://via.placeholder.com/200x200/10B981/FFFFFF?text=AidSplit" alt="AidSplit Logo" width="200" height="200">
+  <img src="<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/998047e8-85af-40b4-8fbb-911e4f82dfd8" />
+" alt="AidSplit Logo" width="200" height="200">
 </p>
 
 <p align="center">
@@ -290,23 +291,6 @@ Use testnet STX for donations. Get testnet STX from the [Stacks Testnet Faucet](
 - Encrypted communication channels
 - Regular security updates
 
-## 🤝 Partners & Supporters
-
-<!-- Add partner logos/links here -->
-- International Relief Organizations
-- Blockchain Development Communities
-- Educational Institutions
-- Technology Partners
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Contact & Support
-
-- **Website**: [https://aid-split.vercel.app](https://aid-split.vercel.app)
-- **GitHub**: [https://github.com/n0tnow/AidSplit](https://github.com/n0tnow/AidSplit)
-- **Issues**: [GitHub Issues](https://github.com/n0tnow/AidSplit/issues)
 
 ## 🙏 Acknowledgments
 
