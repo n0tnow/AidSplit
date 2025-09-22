@@ -1,31 +1,35 @@
 // Stacks Network Configuration
 export const NETWORK = process.env.REACT_APP_NETWORK as 'mainnet' | 'testnet' | 'devnet' || 'testnet';
 
-// Contract Addresses (will be updated after deployment)
-export const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS || 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM';
+// Contract Addresses (V4 deployed to testnet)
+export const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS || 'STBMFWFXC4VKC5PEZDXPR0JAKEJ5WCH3KA0D1EP4';
+
+// Hiro API Configuration
+export const HIRO_API_KEY = process.env.REACT_APP_HIRO_API_KEY || '244d7e507bbde1cf678961481f30a092';
 
 export const CONTRACTS = {
-  ACCESS_CONTROL: 'access-control',
-  CAMPAIGN_MANAGER: 'campaign-manager', 
-  COMPANY_AUTH: 'company-auth',
-  DISTRIBUTION_ENGINE: 'distribution-engine',
-  DONATION_TARGETING: 'donation-targeting',
-  HIERARCHY_CALCULATOR: 'hierarchy-calculator',
-  NFT_GENERATOR: 'nft-generator',
-  NFT_RECEIPTS: 'nft-receipts'
+  ACCESS_CONTROL: 'access-control-v6',
+  CAMPAIGN_MANAGER: 'campaign-manager-v6',
+  COMPANY_AUTH: 'company-auth-v6',
+  DISTRIBUTION_ENGINE: 'distribution-engine-v6',
+  DONATION_TARGETING: 'donation-targeting-v6',
+  HIERARCHY_CALCULATOR: 'hierarchy-calculator-v6',
+  NFT_GENERATOR: 'nft-generator-v6',
+  NFT_RECEIPTS: 'nft-receipts-v6',
+  FUNDRAISING_CAMPAIGN: 'fundraising-campaign-v1'
 };
 
-// Network URLs
+// Network URLs - Using Hiro API
 export const NETWORK_URLS = {
-  testnet: 'https://stacks-node-api.testnet.stacks.co',
-  mainnet: 'https://stacks-node-api.mainnet.stacks.co',
+  testnet: `https://api.testnet.hiro.so`,
+  mainnet: `https://api.hiro.so`,
   devnet: 'http://localhost:3999'
 };
 
 // Explorer URLs
 export const EXPLORER_URLS = {
-  testnet: 'https://explorer.stacks.co',
-  mainnet: 'https://explorer.stacks.co', 
+  testnet: 'https://explorer.hiro.so',
+  mainnet: 'https://explorer.hiro.so',
   devnet: 'http://localhost:8000'
 };
 
