@@ -1,8 +1,8 @@
 # 🤝 AidSplit - Blockchain-Based Disaster Relief Platform
 
 <p align="center">
-  <img src="<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/998047e8-85af-40b4-8fbb-911e4f82dfd8" />
-" alt="AidSplit Logo" width="200" height="200">
+  <img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/25eb1370-8274-4113-bd57-8807ab21cfef" />
+
 </p>
 
 <p align="center">
