@@ -269,16 +269,6 @@ Visit the live application: **[https://aid-split.vercel.app](https://aid-split.v
 ### Test Credentials:
 Use testnet STX for donations. Get testnet STX from the [Stacks Testnet Faucet](https://explorer.stacks.co/sandbox/faucet?chain=testnet).
 
-## 📊 Platform Statistics
-
-> *Update these with real numbers as the platform grows*
-
-- 🎯 **Active Campaigns**: 12
-- 💰 **Total Donations**: 25,000 STX
-- 🏢 **Partner Organizations**: 8
-- 🎫 **NFTs Issued**: 1,247
-- 🌍 **Countries Served**: 15
-
 ## 🛡️ Security
 
 ### Smart Contract Security
