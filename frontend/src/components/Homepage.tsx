@@ -363,87 +363,8 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigate }) => {
             </div>
           </div>
           
-          <div 
-            className="quick-access-card"
-            onClick={() => onNavigate('fundraising')}
-          >
-            <div className="card-header">
-              <div className="card-icon">
-                <CircleDollarSign size={24} />
-              </div>
-              <div className="card-title-group">
-                <h3 className="card-title">Fundraising Campaign</h3>
-                <p className="card-subtitle">STX & sBTC Donations</p>
-              </div>
-            </div>
-            <div className="card-content">
-              <p className="card-description">
-                Simple fundraising campaign accepting both STX and sBTC donations with real-time tracking
-              </p>
-              <div className="card-features">
-                <ul className="card-features-list">
-                  <li className="card-feature-item">Multi-Currency</li>
-                  <li className="card-feature-item">Real-time Stats</li>
-                  <li className="card-feature-item">Transparent</li>
-                </ul>
-              </div>
-            </div>
-          </div>
           
-          <div 
-            className="quick-access-card"
-            onClick={() => onNavigate('access-control')}
-          >
-            <div className="card-header">
-              <div className="card-icon">
-                <Settings size={24} />
-              </div>
-              <div className="card-title-group">
-                <h3 className="card-title">Admin Panel</h3>
-                <p className="card-subtitle">System Management</p>
-              </div>
-            </div>
-            <div className="card-content">
-              <p className="card-description">
-                Comprehensive system administration with role management and access controls
-              </p>
-              <div className="card-features">
-                <ul className="card-features-list">
-                  <li className="card-feature-item">Role Management</li>
-                  <li className="card-feature-item">Access Control</li>
-                  <li className="card-feature-item">System Config</li>
-                </ul>
-              </div>
-            </div>
-          </div>
 
-          <div 
-            className="quick-access-card"
-            onClick={() => onNavigate('manual-mint')}
-            style={{ border: '1px solid #f59e0b' }}
-          >
-            <div className="card-header">
-              <div className="card-icon">
-                <Terminal size={24} />
-              </div>
-              <div className="card-title-group">
-                <h3 className="card-title">Manual NFT Mint</h3>
-                <p className="card-subtitle">Developer Tools</p>
-              </div>
-            </div>
-            <div className="card-content">
-              <p className="card-description">
-                Review pending NFT mint requests and manually process them via Stacks CLI
-              </p>
-              <div className="card-features">
-                <ul className="card-features-list">
-                  <li className="card-feature-item">Pending Requests</li>
-                  <li className="card-feature-item">CLI Commands</li>
-                  <li className="card-feature-item">IPFS Metadata</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
